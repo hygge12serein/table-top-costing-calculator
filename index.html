@@ -46,7 +46,7 @@
     <!-- HEADER & ACTIONS -->
     <header class="flex flex-col md:flex-row md:items-center md:justify-between bg-brand-900 text-white rounded-2xl p-6 shadow-xl gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Table Top Costing Estimator</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Table Top Costing Calculator</h1>
         <p class="text-brand-200 text-sm mt-1">Real-time dimension calculations & cost breakdown</p>
       </div>
       <div class="flex items-center gap-3 no-print">
@@ -412,7 +412,7 @@
     lucide.createIcons();
 
     // Helper functions
-    const fmtCurr = (num) => `$${(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmtCurr = (num) => `RM ${(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const fmtNum = (num, decimals = 2) => (num || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
     // Back to Top Scroll Logic
