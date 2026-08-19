@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Table Top Costing Estimator</title>
+  <title>Table Top Costing Calculator</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Segoe UI Font & Lucide Icons -->
@@ -29,6 +29,9 @@
     }
   </script>
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
     @media print {
       .no-print { display: none !important; }
       body { background: white; padding: 0; }
@@ -36,7 +39,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-8 px-4 sm:px-6 lg:px-8 relative">
 
   <div class="max-w-7xl mx-auto space-y-6">
     
@@ -60,19 +63,19 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Thickness Cost</span>
-        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardThicknessCost">$0.00</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardThicknessCost">RM 0.00</div>
       </div>
       <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Veneer Cost</span>
-        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardVeneerCost">$0.00</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardVeneerCost">RM 0.00</div>
       </div>
       <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CNC Router Cost</span>
-        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardCncCost">$0.00</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardCncCost">RM 0.00</div>
       </div>
       <div class="bg-brand-50 rounded-xl p-5 border border-brand-200 shadow-sm">
         <span class="text-xs font-semibold text-brand-700 uppercase tracking-wider">Grand Total Cost</span>
-        <div class="text-3xl font-extrabold text-brand-900 mt-1" id="cardGrandTotal">$0.00</div>
+        <div class="text-3xl font-extrabold text-brand-900 mt-1" id="cardGrandTotal">RM 0.00</div>
       </div>
     </div>
 
@@ -161,64 +164,64 @@
                   <th class="p-3 text-right">Rate</th>
                   <th class="p-3 text-center">Qty</th>
                   <th class="p-3 text-right">Perimeter</th>
-                  <th class="p-3 text-right">Cost ($)</th>
+                  <th class="p-3 text-right">Cost (RM )</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr>
                   <td class="p-3 pl-6 font-medium">加厚1层</td>
-                  <td class="p-3 text-right">$1.35</td>
+                  <td class="p-3 text-right">RM 1.35</td>
                   <td class="p-3 text-center"><input type="number" id="t1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="t1_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t1_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t1_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">加厚2层</td>
-                  <td class="p-3 text-right">$1.95</td>
+                  <td class="p-3 text-right">RM 1.95</td>
                   <td class="p-3 text-center"><input type="number" id="t2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="t2_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t2_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t2_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">八卦 / D shape / Round apron</td>
-                  <td class="p-3 text-right">$1.95</td>
+                  <td class="p-3 text-right">RM 1.95</td>
                   <td class="p-3 text-center"><input type="number" id="t3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="t3_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t3_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t3_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">中间加骨</td>
-                  <td class="p-3 text-right">$1.50</td>
+                  <td class="p-3 text-right">RM 1.50</td>
                   <td class="p-3 text-center"><input type="number" id="t4_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t4_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t4_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">特别款式</td>
                   <td class="p-3 text-right"><input type="number" id="t5_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
                   <td class="p-3 text-center"><input type="number" id="t5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right"><input type="number" id="t5_perim" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t5_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t5_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">Apron</td>
-                  <td class="p-3 text-right font-mono" id="t6_rate">$0.00</td>
+                  <td class="p-3 text-right font-mono" id="t6_rate">RM 0.00</td>
                   <td class="p-3 text-center"><input type="number" id="t6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="t6_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t6_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t6_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">Backer</td>
-                  <td class="p-3 text-right font-mono" id="t7_rate">$0.00</td>
+                  <td class="p-3 text-right font-mono" id="t7_rate">RM 0.00</td>
                   <td class="p-3 text-center"><input type="number" id="t7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="t7_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t7_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t7_cost">RM 0.00</td>
                 </tr>
               </tbody>
               <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
                 <tr>
                   <td colspan="4" class="p-3 pl-6 text-brand-900">Total Thickness Cost</td>
-                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalThicknessCost">$0.00</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalThicknessCost">RM 0.00</td>
                 </tr>
               </tfoot>
             </table>
@@ -238,64 +241,64 @@
                   <th class="p-3 text-right">Rate</th>
                   <th class="p-3 text-center">Qty</th>
                   <th class="p-3 text-right">Perimeter</th>
-                  <th class="p-3 text-right">Cost ($)</th>
+                  <th class="p-3 text-right">Cost (RM )</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr>
                   <td class="p-3 pl-6 font-medium">直边1层</td>
-                  <td class="p-3 text-right">$1.10</td>
+                  <td class="p-3 text-right">RM 1.10</td>
                   <td class="p-3 text-center"><input type="number" id="v1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v1_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v1_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v1_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">直边2层</td>
-                  <td class="p-3 text-right">$1.50</td>
+                  <td class="p-3 text-right">RM 1.50</td>
                   <td class="p-3 text-center"><input type="number" id="v2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v2_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v2_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v2_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">直边3层</td>
-                  <td class="p-3 text-right">$2.10</td>
+                  <td class="p-3 text-right">RM 2.10</td>
                   <td class="p-3 text-center"><input type="number" id="v3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v3_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v3_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v3_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">curve曲边1层</td>
-                  <td class="p-3 text-right">$2.20</td>
+                  <td class="p-3 text-right">RM 2.20</td>
                   <td class="p-3 text-center"><input type="number" id="v4_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v4_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v4_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v4_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">curve曲边2层</td>
-                  <td class="p-3 text-right">$3.00</td>
+                  <td class="p-3 text-right">RM 3.00</td>
                   <td class="p-3 text-center"><input type="number" id="v5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v5_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v5_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v5_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">特别款式</td>
                   <td class="p-3 text-right"><input type="number" id="v6_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
                   <td class="p-3 text-center"><input type="number" id="v6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right"><input type="number" id="v6_perim" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v6_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v6_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">Veneer</td>
-                  <td class="p-3 text-right">$0.35</td>
+                  <td class="p-3 text-right">RM 0.35</td>
                   <td class="p-3 text-center"><input type="number" id="v7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="v7_perim">0.00</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v7_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v7_cost">RM 0.00</td>
                 </tr>
               </tbody>
               <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
                 <tr>
                   <td colspan="4" class="p-3 pl-6 text-brand-900">Total Veneer Cost</td>
-                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalVeneerCost">$0.00</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalVeneerCost">RM 0.00</td>
                 </tr>
               </tfoot>
             </table>
@@ -310,7 +313,7 @@
               <span>Solid Material:</span>
               <select id="cncSolidMaterial" onchange="calculateAll()" class="bg-brand-800 text-white border border-brand-500 rounded px-2 py-1 focus:outline-none font-bold">
                 <option value="No">No</option>
-                <option value="Yes">Yes (+ $50/m³)</option>
+                <option value="Yes">Yes (+ RM 50/m³)</option>
               </select>
             </div>
           </div>
@@ -322,71 +325,71 @@
                   <th class="p-3 text-right">Rate</th>
                   <th class="p-3 text-center">Qty</th>
                   <th class="p-3 text-right">Basis (m³ / unit)</th>
-                  <th class="p-3 text-right">Cost ($)</th>
+                  <th class="p-3 text-right">Cost (RM )</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
                 <tr>
                   <td class="p-3 pl-6 font-medium">MDF 平刀</td>
-                  <td class="p-3 text-right font-mono" id="c1_rate">$180.00</td>
+                  <td class="p-3 text-right font-mono" id="c1_rate">RM 180.00</td>
                   <td class="p-3 text-center"><input type="number" id="c1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="c1_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c1_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c1_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">MDF 刀型</td>
-                  <td class="p-3 text-right font-mono" id="c2_rate">$200.00</td>
+                  <td class="p-3 text-right font-mono" id="c2_rate">RM 200.00</td>
                   <td class="p-3 text-center"><input type="number" id="c2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="c2_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c2_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c2_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">加厚</td>
-                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-right">RM 50.00</td>
                   <td class="p-3 text-center"><input type="number" id="c3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="c3_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c3_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c3_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">尺寸 > 1200mm × 1200mm</td>
-                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-right">RM 50.00</td>
                   <td class="p-3 text-center font-bold font-mono text-slate-700" id="c4_qty">0</td>
                   <td class="p-3 text-right font-mono" id="c4_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c4_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c4_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">Solid Rubber Wood</td>
-                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-right">RM 50.00</td>
                   <td class="p-3 text-center"><input type="number" id="c5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="c5_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c5_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c5_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">钻洞</td>
-                  <td class="p-3 text-right">$0.10</td>
+                  <td class="p-3 text-right">RM 0.10</td>
                   <td class="p-3 text-center"><input type="number" id="c6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c6_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c6_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">钻nut</td>
-                  <td class="p-3 text-right">$0.10</td>
+                  <td class="p-3 text-right">RM 0.10</td>
                   <td class="p-3 text-center"><input type="number" id="c7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c7_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c7_cost">RM 0.00</td>
                 </tr>
                 <tr>
                   <td class="p-3 pl-6 font-medium">特别款式</td>
                   <td class="p-3 text-right"><input type="number" id="c8_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
                   <td class="p-3 text-center"><input type="number" id="c8_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
                   <td class="p-3 text-right font-mono" id="c8_basis">0.00000</td>
-                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c8_cost">$0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c8_cost">RM 0.00</td>
                 </tr>
               </tbody>
               <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
                 <tr>
                   <td colspan="4" class="p-3 pl-6 text-brand-900">Total CNC Cost</td>
-                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalCncCost">$0.00</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalCncCost">RM 0.00</td>
                 </tr>
               </tfoot>
             </table>
@@ -399,13 +402,32 @@
 
   </div>
 
+  <!-- FLOATING BACK TO TOP BUTTON -->
+  <button id="backToTopBtn" onclick="scrollToTop()" aria-label="Back to top" class="no-print fixed bottom-6 right-6 hidden bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 group focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+    <i data-lucide="arrow-up" class="w-5 h-5 transition-transform group-hover:-translate-y-0.5"></i>
+  </button>
+
   <script>
     // Initialize Lucide Icons
     lucide.createIcons();
 
     // Helper functions
-    const fmtCurr = (num) => `$${(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmtCurr = (num) => `RM RM {(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const fmtNum = (num, decimals = 2) => (num || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+
+    // Back to Top Scroll Logic
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    window.onscroll = function () {
+      if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+        backToTopBtn.classList.remove('hidden');
+      } else {
+        backToTopBtn.classList.add('hidden');
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     function calculateAll() {
       // 1. Get Base Inputs
@@ -453,7 +475,7 @@
       const t5_cost = t5_rate * t5_qty * t5_perim;
       document.getElementById('t5_cost').innerText = fmtCurr(t5_cost);
 
-      // Updated Apron Rule: if thicknessWidth > 100 then 2.00/m, else 1.00/m
+      // Apron Rule: if thicknessWidth > 100 then 2.00/m, else 1.00/m
       const t6_rate = thicknessWidth > 100 ? 2.00 : 1.00;
       const t6_qty = parseFloat(document.getElementById('t6_qty').value) || 0;
       const t6_cost = t6_rate * t6_qty * perimM;
@@ -461,7 +483,7 @@
       document.getElementById('t6_perim').innerText = fmtNum(perimM);
       document.getElementById('t6_cost').innerText = fmtCurr(t6_cost);
 
-      // Updated Backer Rule: if thicknessWidth > 80 then 2.00/m, else 1.00/m
+      // Backer Rule: if thicknessWidth > 80 then 2.00/m, else 1.00/m
       const t7_rate = thicknessWidth > 80 ? 2.00 : 1.00;
       const t7_qty = parseFloat(document.getElementById('t7_qty').value) || 0;
       const t7_cost = t7_rate * t7_qty * perimM;
