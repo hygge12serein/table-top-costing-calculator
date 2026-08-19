@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Top Costing Estimator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Segoe UI Font & Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white; padding: 0; }
+      .container-card { shadow: none; border: none; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-7xl mx-auto space-y-6">
+    
+    <!-- HEADER & ACTIONS -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between bg-brand-900 text-white rounded-2xl p-6 shadow-xl gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Table Top Costing Estimator</h1>
+        <p class="text-brand-200 text-sm mt-1">Real-time dimension calculations & cost breakdown</p>
+      </div>
+      <div class="flex items-center gap-3 no-print">
+        <button onclick="resetDefaults()" class="inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all border border-brand-700 shadow-sm">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
+        </button>
+        <button onclick="window.print()" class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-all shadow-md">
+          <i data-lucide="printer" class="w-4 h-4"></i> Export / Print
+        </button>
+      </div>
+    </header>
+
+    <!-- SUMMARY CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Thickness Cost</span>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardThicknessCost">$0.00</div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Veneer Cost</span>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardVeneerCost">$0.00</div>
+      </div>
+      <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CNC Router Cost</span>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="cardCncCost">$0.00</div>
+      </div>
+      <div class="bg-brand-50 rounded-xl p-5 border border-brand-200 shadow-sm">
+        <span class="text-xs font-semibold text-brand-700 uppercase tracking-wider">Grand Total Cost</span>
+        <div class="text-3xl font-extrabold text-brand-900 mt-1" id="cardGrandTotal">$0.00</div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT COLUMN: INPUTS & DIMENSIONS -->
+      <div class="space-y-6">
+        
+        <!-- Input Parameters -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-brand-600 text-white px-6 py-3.5 font-semibold flex items-center justify-between">
+            <span class="flex items-center gap-2"><i data-lucide="sliders" class="w-4 h-4"></i> Input Parameters</span>
+            <span class="text-xs bg-brand-700 px-2.5 py-1 rounded-full text-brand-100">Editable</span>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Length (mm)</label>
+              <input type="number" id="inputLength" value="1500" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3.5 py-2 text-brand-900 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Width (mm)</label>
+              <input type="number" id="inputWidth" value="900" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3.5 py-2 text-brand-900 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Height (mm)</label>
+              <input type="number" id="inputHeight" value="18" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3.5 py-2 text-brand-900 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Thickness (mm)</label>
+                <input type="number" id="inputThickness" value="18" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3.5 py-2 text-brand-900 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Thickness Qty</label>
+                <input type="number" id="inputThicknessQty" value="1" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3.5 py-2 text-brand-900 font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculated Dimensions -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-slate-800 text-white px-6 py-3.5 font-semibold flex items-center gap-2">
+            <i data-lucide="ruler" class="w-4 h-4"></i> Calculated Dimensions
+          </div>
+          <div class="p-6 space-y-3 bg-emerald-50/40">
+            <div class="flex justify-between items-center text-sm py-1 border-b border-emerald-100">
+              <span class="text-slate-600 font-medium">Perimeter (mm)</span>
+              <span class="font-bold text-slate-900" id="dimPerimeterMm">0</span>
+            </div>
+            <div class="flex justify-between items-center text-sm py-1 border-b border-emerald-100">
+              <span class="text-slate-600 font-medium">Perimeter (m)</span>
+              <span class="font-bold text-slate-900" id="dimPerimeterM">0.00</span>
+            </div>
+            <div class="flex justify-between items-center text-sm py-1 border-b border-emerald-100">
+              <span class="text-slate-600 font-medium">Volume (mm³)</span>
+              <span class="font-bold text-slate-900" id="dimVolumeMm">0</span>
+            </div>
+            <div class="flex justify-between items-center text-sm py-1">
+              <span class="text-slate-600 font-medium">Volume (m³)</span>
+              <span class="font-bold text-slate-900" id="dimVolumeM">0.00000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: TABLES -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- 1. THICKNESS & RECUTTING COSTING -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-brand-600 text-white px-6 py-3.5 font-semibold">
+            1. Thickness & Recutting Costing
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                <tr>
+                  <th class="p-3 pl-6">Item</th>
+                  <th class="p-3 text-right">Rate</th>
+                  <th class="p-3 text-center">Qty</th>
+                  <th class="p-3 text-right">Perimeter</th>
+                  <th class="p-3 text-right">Cost ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 pl-6 font-medium">加厚1层</td>
+                  <td class="p-3 text-right">$1.35</td>
+                  <td class="p-3 text-center"><input type="number" id="t1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="t1_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t1_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">加厚2层</td>
+                  <td class="p-3 text-right">$1.95</td>
+                  <td class="p-3 text-center"><input type="number" id="t2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="t2_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t2_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">八卦 / D shape / Round apron</td>
+                  <td class="p-3 text-right">$1.95</td>
+                  <td class="p-3 text-center"><input type="number" id="t3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="t3_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t3_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">中间加骨</td>
+                  <td class="p-3 text-right">$1.50</td>
+                  <td class="p-3 text-center"><input type="number" id="t4_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono text-slate-400">-</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t4_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">特别款式</td>
+                  <td class="p-3 text-right"><input type="number" id="t5_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
+                  <td class="p-3 text-center"><input type="number" id="t5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right"><input type="number" id="t5_perim" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t5_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">Apron</td>
+                  <td class="p-3 text-right font-mono" id="t6_rate">$0.00</td>
+                  <td class="p-3 text-center"><input type="number" id="t6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="t6_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t6_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">Backer</td>
+                  <td class="p-3 text-right font-mono" id="t7_rate">$0.00</td>
+                  <td class="p-3 text-center"><input type="number" id="t7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="t7_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t7_cost">$0.00</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
+                <tr>
+                  <td colspan="4" class="p-3 pl-6 text-brand-900">Total Thickness Cost</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalThicknessCost">$0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. VENEER EDGING COSTING -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-brand-600 text-white px-6 py-3.5 font-semibold">
+            2. Veneer Edging Costing
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                <tr>
+                  <th class="p-3 pl-6">Item</th>
+                  <th class="p-3 text-right">Rate</th>
+                  <th class="p-3 text-center">Qty</th>
+                  <th class="p-3 text-right">Perimeter</th>
+                  <th class="p-3 text-right">Cost ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 pl-6 font-medium">直边1层</td>
+                  <td class="p-3 text-right">$1.10</td>
+                  <td class="p-3 text-center"><input type="number" id="v1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v1_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v1_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">直边2层</td>
+                  <td class="p-3 text-right">$1.50</td>
+                  <td class="p-3 text-center"><input type="number" id="v2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v2_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v2_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">直边3层</td>
+                  <td class="p-3 text-right">$2.10</td>
+                  <td class="p-3 text-center"><input type="number" id="v3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v3_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v3_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">curve曲边1层</td>
+                  <td class="p-3 text-right">$2.20</td>
+                  <td class="p-3 text-center"><input type="number" id="v4_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v4_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v4_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">curve曲边2层</td>
+                  <td class="p-3 text-right">$3.00</td>
+                  <td class="p-3 text-center"><input type="number" id="v5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v5_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v5_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">特别款式</td>
+                  <td class="p-3 text-right"><input type="number" id="v6_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
+                  <td class="p-3 text-center"><input type="number" id="v6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right"><input type="number" id="v6_perim" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v6_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">Veneer</td>
+                  <td class="p-3 text-right">$0.35</td>
+                  <td class="p-3 text-center"><input type="number" id="v7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="v7_perim">0.00</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v7_cost">$0.00</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
+                <tr>
+                  <td colspan="4" class="p-3 pl-6 text-brand-900">Total Veneer Cost</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalVeneerCost">$0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. CNC ROUTER COSTING -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="bg-brand-600 text-white px-6 py-3.5 font-semibold flex items-center justify-between">
+            <span>3. CNC Router Costing</span>
+            <div class="flex items-center gap-2 text-xs">
+              <span>Solid Material:</span>
+              <select id="cncSolidMaterial" onchange="calculateAll()" class="bg-brand-800 text-white border border-brand-500 rounded px-2 py-1 focus:outline-none font-bold">
+                <option value="No">No</option>
+                <option value="Yes">Yes (+ $50/m³)</option>
+              </select>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+                <tr>
+                  <th class="p-3 pl-6">Item</th>
+                  <th class="p-3 text-right">Rate</th>
+                  <th class="p-3 text-center">Qty</th>
+                  <th class="p-3 text-right">Basis (m³ / unit)</th>
+                  <th class="p-3 text-right">Cost ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 pl-6 font-medium">MDF 平刀</td>
+                  <td class="p-3 text-right font-mono" id="c1_rate">$180.00</td>
+                  <td class="p-3 text-center"><input type="number" id="c1_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="c1_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c1_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">MDF 刀型</td>
+                  <td class="p-3 text-right font-mono" id="c2_rate">$200.00</td>
+                  <td class="p-3 text-center"><input type="number" id="c2_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="c2_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c2_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">加厚</td>
+                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-center"><input type="number" id="c3_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="c3_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c3_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">尺寸 > 1200mm × 1200mm</td>
+                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-center font-bold font-mono text-slate-700" id="c4_qty">0</td>
+                  <td class="p-3 text-right font-mono" id="c4_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c4_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">Solid Rubber Wood</td>
+                  <td class="p-3 text-right">$50.00</td>
+                  <td class="p-3 text-center"><input type="number" id="c5_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="c5_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c5_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">钻洞</td>
+                  <td class="p-3 text-right">$0.10</td>
+                  <td class="p-3 text-center"><input type="number" id="c6_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono text-slate-400">-</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c6_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">钻nut</td>
+                  <td class="p-3 text-right">$0.10</td>
+                  <td class="p-3 text-center"><input type="number" id="c7_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono text-slate-400">-</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c7_cost">$0.00</td>
+                </tr>
+                <tr>
+                  <td class="p-3 pl-6 font-medium">特别款式</td>
+                  <td class="p-3 text-right"><input type="number" id="c8_rate" value="0.00" step="0.01" oninput="calculateAll()" class="w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-2"></td>
+                  <td class="p-3 text-center"><input type="number" id="c8_qty" value="0" oninput="calculateAll()" class="w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1"></td>
+                  <td class="p-3 text-right font-mono" id="c8_basis">0.00000</td>
+                  <td class="p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c8_cost">$0.00</td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
+                <tr>
+                  <td colspan="4" class="p-3 pl-6 text-brand-900">Total CNC Cost</td>
+                  <td class="p-3 text-right font-mono text-brand-900 text-base" id="totalCncCost">$0.00</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Helper functions
+    const fmtCurr = (num) => `$${(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmtNum = (num, decimals = 2) => (num || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+
+    function calculateAll() {
+      // 1. Get Base Inputs
+      const length = parseFloat(document.getElementById('inputLength').value) || 0;
+      const width = parseFloat(document.getElementById('inputWidth').value) || 0;
+      const height = parseFloat(document.getElementById('inputHeight').value) || 0;
+      const thickness = parseFloat(document.getElementById('inputThickness').value) || 0;
+      const thicknessQty = parseFloat(document.getElementById('inputThicknessQty').value) || 0;
+
+      // 2. Calculate Dimensions
+      const perimMm = 2 * (length + width);
+      const perimM = perimMm / 1000;
+      const volMm = (height + (thickness * thicknessQty)) * width * length;
+      const volM = volMm / 1000000000;
+
+      document.getElementById('dimPerimeterMm').innerText = fmtNum(perimMm, 0);
+      document.getElementById('dimPerimeterM').innerText = fmtNum(perimM, 2);
+      document.getElementById('dimVolumeMm').innerText = fmtNum(volMm, 0);
+      document.getElementById('dimVolumeM').innerText = fmtNum(volM, 5);
+
+      // 3. Thickness Section
+      const t1_qty = parseFloat(document.getElementById('t1_qty').value) || 0;
+      const t1_cost = 1.35 * t1_qty * perimM;
+      document.getElementById('t1_perim').innerText = fmtNum(perimM);
+      document.getElementById('t1_cost').innerText = fmtCurr(t1_cost);
+
+      const t2_qty = parseFloat(document.getElementById('t2_qty').value) || 0;
+      const t2_cost = 1.95 * t2_qty * perimM;
+      document.getElementById('t2_perim').innerText = fmtNum(perimM);
+      document.getElementById('t2_cost').innerText = fmtCurr(t2_cost);
+
+      const t3_qty = parseFloat(document.getElementById('t3_qty').value) || 0;
+      const t3_cost = 1.95 * t3_qty * perimM;
+      document.getElementById('t3_perim').innerText = fmtNum(perimM);
+      document.getElementById('t3_cost').innerText = fmtCurr(t3_cost);
+
+      const t4_qty = parseFloat(document.getElementById('t4_qty').value) || 0;
+      const t4_cost = 1.50 * t4_qty;
+      document.getElementById('t4_cost').innerText = fmtCurr(t4_cost);
+
+      const t5_rate = parseFloat(document.getElementById('t5_rate').value) || 0;
+      const t5_qty = parseFloat(document.getElementById('t5_qty').value) || 0;
+      const t5_perim = parseFloat(document.getElementById('t5_perim').value) || 0;
+      const t5_cost = t5_rate * t5_qty * t5_perim;
+      document.getElementById('t5_cost').innerText = fmtCurr(t5_cost);
+
+      const t6_rate = perimMm >= 100 ? 2.00 : 1.00;
+      const t6_qty = parseFloat(document.getElementById('t6_qty').value) || 0;
+      const t6_cost = t6_rate * t6_qty * perimM;
+      document.getElementById('t6_rate').innerText = fmtCurr(t6_rate);
+      document.getElementById('t6_perim').innerText = fmtNum(perimM);
+      document.getElementById('t6_cost').innerText = fmtCurr(t6_cost);
+
+      const t7_rate = perimMm >= 80 ? 2.00 : 1.00;
+      const t7_qty = parseFloat(document.getElementById('t7_qty').value) || 0;
+      const t7_cost = t7_rate * t7_qty * perimM;
+      document.getElementById('t7_rate').innerText = fmtCurr(t7_rate);
+      document.getElementById('t7_perim').innerText = fmtNum(perimM);
+      document.getElementById('t7_cost').innerText = fmtCurr(t7_cost);
+
+      const totalThicknessCost = t1_cost + t2_cost + t3_cost + t4_cost + t5_cost + t6_cost + t7_cost;
+      document.getElementById('totalThicknessCost').innerText = fmtCurr(totalThicknessCost);
+      document.getElementById('cardThicknessCost').innerText = fmtCurr(totalThicknessCost);
+
+      // 4. Veneer Section
+      const calcVeneerCost = (rate, qty) => qty === 0 ? 0 : Math.max(rate * qty * perimM, 0.50 * qty);
+
+      const v1_qty = parseFloat(document.getElementById('v1_qty').value) || 0;
+      const v1_cost = calcVeneerCost(1.10, v1_qty);
+      document.getElementById('v1_perim').innerText = fmtNum(perimM);
+      document.getElementById('v1_cost').innerText = fmtCurr(v1_cost);
+
+      const v2_qty = parseFloat(document.getElementById('v2_qty').value) || 0;
+      const v2_cost = calcVeneerCost(1.50, v2_qty);
+      document.getElementById('v2_perim').innerText = fmtNum(perimM);
+      document.getElementById('v2_cost').innerText = fmtCurr(v2_cost);
+
+      const v3_qty = parseFloat(document.getElementById('v3_qty').value) || 0;
+      const v3_cost = calcVeneerCost(2.10, v3_qty);
+      document.getElementById('v3_perim').innerText = fmtNum(perimM);
+      document.getElementById('v3_cost').innerText = fmtCurr(v3_cost);
+
+      const v4_qty = parseFloat(document.getElementById('v4_qty').value) || 0;
+      const v4_cost = calcVeneerCost(2.20, v4_qty);
+      document.getElementById('v4_perim').innerText = fmtNum(perimM);
+      document.getElementById('v4_cost').innerText = fmtCurr(v4_cost);
+
+      const v5_qty = parseFloat(document.getElementById('v5_qty').value) || 0;
+      const v5_cost = calcVeneerCost(3.00, v5_qty);
+      document.getElementById('v5_perim').innerText = fmtNum(perimM);
+      document.getElementById('v5_cost').innerText = fmtCurr(v5_cost);
+
+      const v6_rate = parseFloat(document.getElementById('v6_rate').value) || 0;
+      const v6_qty = parseFloat(document.getElementById('v6_qty').value) || 0;
+      const v6_perim = parseFloat(document.getElementById('v6_perim').value) || 0;
+      const v6_cost = v6_rate * v6_qty * v6_perim;
+      document.getElementById('v6_cost').innerText = fmtCurr(v6_cost);
+
+      const v7_qty = parseFloat(document.getElementById('v7_qty').value) || 0;
+      const v7_cost = 0.35 * v7_qty * perimM;
+      document.getElementById('v7_perim').innerText = fmtNum(perimM);
+      document.getElementById('v7_cost').innerText = fmtCurr(v7_cost);
+
+      const totalVeneerCost = v1_cost + v2_cost + v3_cost + v4_cost + v5_cost + v6_cost + v7_cost;
+      document.getElementById('totalVeneerCost').innerText = fmtCurr(totalVeneerCost);
+      document.getElementById('cardVeneerCost').innerText = fmtCurr(totalVeneerCost);
+
+      // 5. CNC Section
+      const isSolid = document.getElementById('cncSolidMaterial').value === 'Yes';
+      const c1_rate = 180 + (isSolid ? 50 : 0);
+      const c1_qty = parseFloat(document.getElementById('c1_qty').value) || 0;
+      const c1_cost = c1_qty === 0 ? 0 : Math.max(c1_rate * volM, 1.30) * c1_qty;
+      document.getElementById('c1_rate').innerText = fmtCurr(c1_rate);
+      document.getElementById('c1_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c1_cost').innerText = fmtCurr(c1_cost);
+
+      const c2_rate = 200 + (isSolid ? 50 : 0);
+      const c2_qty = parseFloat(document.getElementById('c2_qty').value) || 0;
+      const c2_cost = c2_qty === 0 ? 0 : Math.max(c2_rate * volM, 1.50) * c2_qty;
+      document.getElementById('c2_rate').innerText = fmtCurr(c2_rate);
+      document.getElementById('c2_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c2_cost').innerText = fmtCurr(c2_cost);
+
+      const c3_qty = parseFloat(document.getElementById('c3_qty').value) || 0;
+      const c3_cost = 50 * volM * c3_qty;
+      document.getElementById('c3_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c3_cost').innerText = fmtCurr(c3_cost);
+
+      const c4_qty = (length > 1200 && width > 1200) ? 1 : 0;
+      const c4_cost = 50 * volM * c4_qty;
+      document.getElementById('c4_qty').innerText = c4_qty;
+      document.getElementById('c4_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c4_cost').innerText = fmtCurr(c4_cost);
+
+      const c5_qty = parseFloat(document.getElementById('c5_qty').value) || 0;
+      const c5_cost = 50 * volM * c5_qty;
+      document.getElementById('c5_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c5_cost').innerText = fmtCurr(c5_cost);
+
+      const c6_qty = parseFloat(document.getElementById('c6_qty').value) || 0;
+      const c6_cost = 0.10 * c6_qty;
+      document.getElementById('c6_cost').innerText = fmtCurr(c6_cost);
+
+      const c7_qty = parseFloat(document.getElementById('c7_qty').value) || 0;
+      const c7_cost = 0.10 * c7_qty;
+      document.getElementById('c7_cost').innerText = fmtCurr(c7_cost);
+
+      const c8_rate = parseFloat(document.getElementById('c8_rate').value) || 0;
+      const c8_qty = parseFloat(document.getElementById('c8_qty').value) || 0;
+      const c8_cost = c8_rate * c8_qty * volM;
+      document.getElementById('c8_basis').innerText = fmtNum(volM, 5);
+      document.getElementById('c8_cost').innerText = fmtCurr(c8_cost);
+
+      const totalCncCost = c1_cost + c2_cost + c3_cost + c4_cost + c5_cost + c6_cost + c7_cost + c8_cost;
+      document.getElementById('totalCncCost').innerText = fmtCurr(totalCncCost);
+      document.getElementById('cardCncCost').innerText = fmtCurr(totalCncCost);
+
+      // 6. Grand Total
+      const grandTotal = totalThicknessCost + totalVeneerCost + totalCncCost;
+      document.getElementById('cardGrandTotal').innerText = fmtCurr(grandTotal);
+    }
+
+    function resetDefaults() {
+      document.querySelectorAll('input').forEach(input => {
+        if (input.id === 'inputLength') input.value = 1500;
+        else if (input.id === 'inputWidth') input.value = 900;
+        else if (input.id === 'inputHeight') input.value = 18;
+        else if (input.id === 'inputThickness') input.value = 18;
+        else if (input.id === 'inputThicknessQty') input.value = 1;
+        else input.value = 0;
+      });
+      document.getElementById('cncSolidMaterial').value = 'No';
+      calculateAll();
+    }
+
+    // Run initial calculation
+    calculateAll();
+  </script>
+</body>
+</html>
