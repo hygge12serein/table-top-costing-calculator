@@ -60,7 +60,6 @@ switch ($action) {
         $item      = trim($input['item'] ?? '');
         $rate      = floatval($input['rate'] ?? 0);
         $is_active = intval($input['is_active'] ?? 1);
-        $updated_at   = NOW();
 
         if (empty($cost_type) || empty($item)) {
             echo json_encode(['success' => false, 'message' => 'Cost Type and Item Name are required.']);
@@ -90,7 +89,6 @@ switch ($action) {
         $flat_rate    = floatval($input['flat_rate'] ?? 0);
         $profile_rate = floatval($input['profile_rate'] ?? 0);
         $is_active    = intval($input['is_active'] ?? 1);
-        $updated_at   = NOW();
 
         if ($thickness_mm <= 0 || empty($item)) {
             echo json_encode(['success' => false, 'message' => 'Valid Thickness (mm) and Item Name are required.']);
