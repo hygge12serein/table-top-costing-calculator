@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculator Rate Configuration Settings</title>
+  <title>Rate Config</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -51,7 +52,7 @@
       <div class="bg-brand-600 text-white px-4 sm:px-6 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-2 font-semibold text-sm sm:text-base">
           <i data-lucide="list" class="w-5 h-5"></i>
-          <span>1. Normal Rates Management (`normal_rates`)</span>
+          <span>1. Normal Rates Config</span>
         </div>
         <button onclick="openNormalRateModal()" class="inline-flex items-center gap-1.5 bg-brand-800 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="plus" class="w-4 h-4"></i> Add Normal Rate
@@ -82,7 +83,7 @@
       <div class="bg-slate-800 text-white px-4 sm:px-6 py-3.5 flex items-center justify-between">
         <div class="flex items-center gap-2 font-semibold text-sm sm:text-base">
           <i data-lucide="layers" class="w-5 h-5"></i>
-          <span>2. Thickness Rates Management (`thickness_rates`)</span>
+          <span>2. Thickness Rates Config</span>
         </div>
         <button onclick="openThicknessRateModal()" class="inline-flex items-center gap-1.5 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
           <i data-lucide="plus" class="w-4 h-4"></i> Add Thickness Rate
@@ -198,32 +199,53 @@
     // Initialize Lucide Icons
     lucide.createIcons();
   
-    const API_URL = 'api.php';
+    // 1. Configure Supabase Client
+    const SUPABASE_URL = 'https://hjdxqocqqkvoeligumfv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
     const fmtCurr = (num) => `RM ${(parseFloat(num) || 0).toFixed(2)}`;
   
     let normalRatesData = [];
     let thicknessRatesData = [];
+
+    // Helper function to generate a 32-character HEX GUID matching database schema
+    function generateGuid() {
+      return crypto.randomUUID().replace(/-/g, '').toUpperCase();
+    }
   
-    // Fetch all rates from Backend MySQL DB
+    // Fetch all rates directly from Supabase
     async function loadData() {
       try {
-        const res = await fetch(`${API_URL}?action=fetch_all`);
-        const data = await res.json();
-        if (data.success) {
-          normalRatesData = data.normal_rates;
-          thicknessRatesData = data.thickness_rates;
-          renderNormalRates();
-          renderThicknessRates();
-        } else {
-          alert('Failed to load data: ' + data.message);
+        const { data: normalRates, error: err1 } = await supabase
+          .from('normal_rates')
+          .select('*')
+          .order('cost_type', { ascending: true })
+          .order('item', { ascending: true });
+  
+        const { data: thicknessRates, error: err2 } = await supabase
+          .from('thickness_rates')
+          .select('*')
+          .order('seq', { ascending: true })
+          .order('thickness_mm', { ascending: true });
+  
+        if (err1 || err2) {
+          alert('Failed to load data: ' + (err1?.message || err2?.message));
+          return;
         }
+  
+        normalRatesData = normalRates || [];
+        thicknessRatesData = thicknessRates || [];
+  
+        renderNormalRates();
+        renderThicknessRates();
       } catch (err) {
         console.error(err);
-        alert('Network or server error while connecting to api.php');
+        alert('Error connecting to Supabase.');
       }
     }
   
-    // Render Tables
+    // Render Functions
     function renderNormalRates() {
       const tbody = document.getElementById('normalRatesTbody');
       if (normalRatesData.length === 0) {
@@ -236,13 +258,13 @@
           <td class="p-3 font-medium text-slate-800">${row.item}</td>
           <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.rate)}</td>
           <td class="p-3 text-center">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${parseInt(row.is_active) ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
-              ${parseInt(row.is_active) ? 'Active' : 'Inactive'}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${row.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${row.is_active ? 'Active' : 'Inactive'}
             </span>
           </td>
-          <td class="p-3 text-slate-400 text-xs">${row.updated_at}</td>
+          <td class="p-3 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleString()}</td>
           <td class="p-3 pr-6 text-center">
-            <button onclick="editNormalRate('${row.guid}')" class="text-brand-600 hover:text-brand-800 font-semibold p-1">Edit</button>
+            <button onclick="openNormalRateModal('${row.guid}')" class="text-brand-600 hover:text-brand-800 font-semibold p-1">Edit</button>
           </td>
         </tr>
       `).join('');
@@ -262,19 +284,19 @@
           <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.flat_rate)}</td>
           <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.profile_rate)}</td>
           <td class="p-3 text-center">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${parseInt(row.is_active) ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
-              ${parseInt(row.is_active) ? 'Active' : 'Inactive'}
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${row.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${row.is_active ? 'Active' : 'Inactive'}
             </span>
           </td>
-          <td class="p-3 text-slate-400 text-xs">${row.updated_at}</td>
+          <td class="p-3 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleString()}</td>
           <td class="p-3 pr-6 text-center">
-            <button onclick="editThicknessRate('${row.guid}')" class="text-brand-600 hover:text-brand-800 font-semibold p-1">Edit</button>
+            <button onclick="openThicknessRateModal('${row.guid}')" class="text-brand-600 hover:text-brand-800 font-semibold p-1">Edit</button>
           </td>
         </tr>
       `).join('');
     }
   
-    // Modal Controls
+    // Modals
     function closeModal(id) {
       document.getElementById(id).classList.add('hidden');
       document.getElementById(id).classList.remove('flex');
@@ -301,35 +323,34 @@
       }
     }
   
-    function editNormalRate(guid) {
-      openNormalRateModal(guid);
-    }
-  
     async function saveNormalRate() {
+      const guid = document.getElementById('normGuid').value;
       const payload = {
-        action: 'save_normal_rate',
-        guid: document.getElementById('normGuid').value,
-        cost_type: document.getElementById('normCostType').value,
-        item: document.getElementById('normItem').value,
+        cost_type: document.getElementById('normCostType').value.trim(),
+        item: document.getElementById('normItem').value.trim(),
         rate: parseFloat(document.getElementById('normRate').value) || 0,
-        is_active: parseInt(document.getElementById('normActive').value)
+        is_active: parseInt(document.getElementById('normActive').value),
+        updated_at: new Date().toISOString()
       };
   
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          closeModal('normalModal');
-          loadData();
-        } else {
-          alert(data.message);
-        }
-      } catch (err) {
-        alert('Error saving record.');
+      if (!payload.cost_type || !payload.item) {
+        alert('Cost Type and Item Name are required.');
+        return;
+      }
+  
+      let error;
+      if (guid) {
+        ({ error } = await supabase.from('normal_rates').update(payload).eq('guid', guid));
+      } else {
+        payload.guid = generateGuid();
+        ({ error } = await supabase.from('normal_rates').insert([payload]));
+      }
+  
+      if (error) {
+        alert('Error saving record: ' + error.message);
+      } else {
+        closeModal('normalModal');
+        loadData();
       }
     }
   
@@ -358,41 +379,40 @@
       }
     }
   
-    function editThicknessRate(guid) {
-      openThicknessRateModal(guid);
-    }
-  
     async function saveThicknessRate() {
+      const guid = document.getElementById('thickGuid').value;
       const payload = {
-        action: 'save_thickness_rate',
-        guid: document.getElementById('thickGuid').value,
         thickness_mm: parseInt(document.getElementById('thickMm').value) || 0,
         seq: parseInt(document.getElementById('thickSeq').value) || 0,
-        item: document.getElementById('thickItem').value,
+        item: document.getElementById('thickItem').value.trim(),
         flat_rate: parseFloat(document.getElementById('thickFlatRate').value) || 0,
         profile_rate: parseFloat(document.getElementById('thickProfileRate').value) || 0,
-        is_active: parseInt(document.getElementById('thickActive').value)
+        is_active: parseInt(document.getElementById('thickActive').value),
+        updated_at: new Date().toISOString()
       };
   
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-          closeModal('thicknessModal');
-          loadData();
-        } else {
-          alert(data.message);
-        }
-      } catch (err) {
-        alert('Error saving record.');
+      if (payload.thickness_mm <= 0 || !payload.item) {
+        alert('Valid Thickness (mm) and Item Name are required.');
+        return;
+      }
+  
+      let error;
+      if (guid) {
+        ({ error } = await supabase.from('thickness_rates').update(payload).eq('guid', guid));
+      } else {
+        payload.guid = generateGuid();
+        ({ error } = await supabase.from('thickness_rates').insert([payload]));
+      }
+  
+      if (error) {
+        alert('Error saving record: ' + error.message);
+      } else {
+        closeModal('thicknessModal');
+        loadData();
       }
     }
   
-    // Fetch initial data on launch
+    // Load Data on Startup
     loadData();
   </script>
 </body>
