@@ -62,7 +62,6 @@
         <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap min-w-[700px]">
           <thead class="bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
             <tr>
-              <th class="p-3 pl-6">GUID (32-Char)</th>
               <th class="p-3">Cost Type</th>
               <th class="p-3">Item Name</th>
               <th class="p-3 text-right">Rate (RM)</th>
@@ -94,7 +93,6 @@
         <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap min-w-[800px]">
           <thead class="bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
             <tr>
-              <th class="p-3 pl-6">GUID (32-Char)</th>
               <th class="p-3 text-center">Seq</th>
               <th class="p-3">Thickness (mm)</th>
               <th class="p-3">Item Name</th>
@@ -224,7 +222,6 @@
       const tbody = document.getElementById('normalRatesTbody');
       tbody.innerHTML = normalRatesData.map(row => `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="p-3 pl-6 font-mono text-slate-400 text-xs">${row.guid}</td>
           <td class="p-3"><span class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-semibold text-xs">${row.cost_type}</span></td>
           <td class="p-3 font-medium text-slate-800">${row.item}</td>
           <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.rate)}</td>
@@ -245,7 +242,6 @@
       const tbody = document.getElementById('thicknessRatesTbody');
       tbody.innerHTML = thicknessRatesData.map(row => `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="p-3 pl-6 font-mono text-slate-400 text-xs">${row.guid}</td>
           <td class="p-3 text-center font-bold text-slate-600">${row.seq}</td>
           <td class="p-3 font-bold text-slate-800">${row.thickness_mm} mm</td>
           <td class="p-3 font-medium text-slate-800">${row.item}</td>
