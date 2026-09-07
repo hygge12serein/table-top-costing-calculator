@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate & Cost Configuration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-8 px-4 sm:px-6 lg:px-8 flex flex-col justify-between">
+
+  <div class="max-w-6xl mx-auto space-y-8 w-full">
+    <header class="bg-brand-900 text-white rounded-2xl p-6 shadow-xl flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">System Configuration Settings</h1>
+        <p class="text-brand-200 text-sm mt-1">Select a rate configuration module to manage settings</p>
+      </div>
+      <a href="index.html" class="inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-all border border-brand-700">
+        <i data-lucide="calculator" class="w-4 h-4"></i> Calculator
+      </a>
+    </header>
+
+    <!-- CARD GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- CARD 1: NORMAL RATES -->
+      <a href="normal-rates.html" class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-brand-500 transition-all flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+            <i data-lucide="list" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Normal Rates</h2>
+            <p class="text-xs text-slate-500 mt-1">Manage rate values for Veneer, CNC, and Thickness cost types.</p>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-brand-600">
+          <span>Manage Config</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- CARD 2: THICKNESS RATES -->
+      <a href="thickness-rates.html" class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-slate-800 transition-all flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center font-bold">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 group-hover:text-slate-800 transition-colors">Thickness Rates</h2>
+            <p class="text-xs text-slate-500 mt-1">Configure flat and profile rates sorted by sequence and mm thickness.</p>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700">
+          <span>Manage Config</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+      <!-- CARD 3: LABOUR COST -->
+      <a href="labour-cost.html" class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-emerald-600 transition-all flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            <i data-lucide="hammer" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">Labour Cost</h2>
+            <p class="text-xs text-slate-500 mt-1">Manage service names, labor costs, and operational active status.</p>
+          </div>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-600">
+          <span>Manage Config</span>
+          <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+  <footer class="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-500 max-w-6xl mx-auto w-full">
+    <p>&copy; 2026 SW做给CH的. Database Config Dashboard.</p>
+  </footer>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>
