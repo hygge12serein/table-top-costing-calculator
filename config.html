@@ -121,7 +121,12 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-medium text-slate-600 mb-1">Cost Type</label>
-          <input type="text" id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          <!-- UPDATED TO SELECT DROPDOWN -->
+          <select id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium focus:ring-2 focus:ring-brand-500 focus:outline-none capitalize">
+            <option value="veneer">Veneer</option>
+            <option value="cnc">CNC</option>
+            <option value="thickness">Thickness</option>
+          </select>
         </div>
         <div>
           <label class="block font-medium text-slate-600 mb-1">Item Name</label>
@@ -199,11 +204,10 @@
     // Initialize Lucide Icons
     lucide.createIcons();
   
-    // 1. Configure Supabase Client (Renamed to 'supabaseClient' to avoid identifier collisions)
+    // 1. Configure Supabase Client
     const SUPABASE_URL = 'https://hjdxqocqqkvoeligumfv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo';
     
-    // RENAMED VARIABLE HERE:
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
     const fmtCurr = (num) => `RM ${(parseFloat(num) || 0).toFixed(2)}`;
@@ -256,7 +260,7 @@
       }
       tbody.innerHTML = normalRatesData.map(row => `
         <tr class="hover:bg-slate-50 transition-colors">
-          <td class="p-3"><span class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-semibold text-xs">${row.cost_type}</span></td>
+          <td class="p-3"><span class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-semibold text-xs capitalize">${row.cost_type}</span></td>
           <td class="p-3 font-medium text-slate-800">${row.item}</td>
           <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.rate)}</td>
           <td class="p-3 text-center">
@@ -311,14 +315,15 @@
         const item = normalRatesData.find(r => r.guid === guid);
         document.getElementById('normalModalTitle').innerText = 'Edit Normal Rate';
         document.getElementById('normGuid').value = item.guid;
-        document.getElementById('normCostType').value = item.cost_type;
+        // CONVERT TO LOWERCASE BEFORE SETTING SELECT VALUE
+        document.getElementById('normCostType').value = (item.cost_type || 'veneer').toLowerCase();
         document.getElementById('normItem').value = item.item;
         document.getElementById('normRate').value = item.rate;
         document.getElementById('normActive').value = item.is_active;
       } else {
         document.getElementById('normalModalTitle').innerText = 'Add New Normal Rate';
         document.getElementById('normGuid').value = '';
-        document.getElementById('normCostType').value = '';
+        document.getElementById('normCostType').value = 'veneer';
         document.getElementById('normItem').value = '';
         document.getElementById('normRate').value = '';
         document.getElementById('normActive').value = '1';
@@ -328,7 +333,8 @@
     async function saveNormalRate() {
       const guid = document.getElementById('normGuid').value;
       const payload = {
-        cost_type: document.getElementById('normCostType').value.trim(),
+        // ENFORCE LOWERCASE VALUE
+        cost_type: document.getElementById('normCostType').value.trim().toLowerCase(),
         item: document.getElementById('normItem').value.trim(),
         rate: parseFloat(document.getElementById('normRate').value) || 0,
         is_active: parseInt(document.getElementById('normActive').value),
@@ -414,7 +420,7 @@
       }
     }
   
-    // Load Data on Startup
+    // Initial Load
     loadData();
   </script>
 </body>
