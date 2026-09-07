@@ -199,10 +199,12 @@
     // Initialize Lucide Icons
     lucide.createIcons();
   
-    // 1. Configure Supabase Client
+    // 1. Configure Supabase Client (Renamed to 'supabaseClient' to avoid identifier collisions)
     const SUPABASE_URL = 'https://hjdxqocqqkvoeligumfv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // RENAMED VARIABLE HERE:
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
     const fmtCurr = (num) => `RM ${(parseFloat(num) || 0).toFixed(2)}`;
   
@@ -217,13 +219,13 @@
     // Fetch all rates directly from Supabase
     async function loadData() {
       try {
-        const { data: normalRates, error: err1 } = await supabase
+        const { data: normalRates, error: err1 } = await supabaseClient
           .from('normal_rates')
           .select('*')
           .order('cost_type', { ascending: true })
           .order('item', { ascending: true });
   
-        const { data: thicknessRates, error: err2 } = await supabase
+        const { data: thicknessRates, error: err2 } = await supabaseClient
           .from('thickness_rates')
           .select('*')
           .order('seq', { ascending: true })
@@ -340,10 +342,10 @@
   
       let error;
       if (guid) {
-        ({ error } = await supabase.from('normal_rates').update(payload).eq('guid', guid));
+        ({ error } = await supabaseClient.from('normal_rates').update(payload).eq('guid', guid));
       } else {
         payload.guid = generateGuid();
-        ({ error } = await supabase.from('normal_rates').insert([payload]));
+        ({ error } = await supabaseClient.from('normal_rates').insert([payload]));
       }
   
       if (error) {
@@ -398,10 +400,10 @@
   
       let error;
       if (guid) {
-        ({ error } = await supabase.from('thickness_rates').update(payload).eq('guid', guid));
+        ({ error } = await supabaseClient.from('thickness_rates').update(payload).eq('guid', guid));
       } else {
         payload.guid = generateGuid();
-        ({ error } = await supabase.from('thickness_rates').insert([payload]));
+        ({ error } = await supabaseClient.from('thickness_rates').insert([payload]));
       }
   
       if (error) {
