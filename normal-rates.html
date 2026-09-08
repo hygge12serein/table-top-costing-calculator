@@ -3,111 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Normal Rates Config</title>
+  <title>Normal Rates Management</title>
+  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' } }
-        }
-      }
-    }
-  </script>
+  <style>
+    /* Custom scrollbars matching calculator.html */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-8 px-4 lg:px-8 flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
 
-  <div class="max-w-7xl mx-auto space-y-6 w-full">
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between bg-brand-900 text-white rounded-2xl p-6 shadow-xl gap-4">
-      <div>
-        <h1 class="text-2xl font-bold">Normal Rates Config</h1>
-        <p class="text-brand-200 text-xs mt-1">Manage Veneer, CNC, and Thickness standard rates</p>
-      </div>
-      <a href="config-index.html" class="inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Config Index
-      </a>
-    </header>
-
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-4 sm:p-6 space-y-4">
-      <!-- CONTROL BAR: SEARCH & ADD -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="relative max-w-xs w-full">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-          <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search item or cost type..." class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+  <!-- Header (Matching calculator.html) -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
+          <i data-lucide="sliders" class="w-6 h-6"></i>
         </div>
-        <button onclick="openModal()" class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-xs font-semibold">
-          <i data-lucide="plus" class="w-4 h-4"></i> Add Normal Rate
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">Normal Rates Configuration</h1>
+          <p class="text-xs text-slate-500">Manage Thickness, Veneer & CNC Standard Unit Rates</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="apiStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting DB...
+        </span>
+        <a href="calculator.html" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition">
+          <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i> Go to Calculator
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Top Summary & Metric Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-500 block">Total Rates Configured</span>
+        <span class="text-2xl font-bold text-slate-900" id="statTotalCount">0</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-500 block">Thickness Rates</span>
+        <span class="text-2xl font-bold text-emerald-700" id="statThicknessCount">0</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-500 block">Veneer Rates</span>
+        <span class="text-2xl font-bold text-indigo-700" id="statVeneerCount">0</span>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <span class="text-xs font-semibold text-slate-500 block">CNC Normal Rates</span>
+        <span class="text-2xl font-bold text-amber-700" id="statCncCount">0</span>
+      </div>
+    </div>
+
+    <!-- Main Card Container -->
+    <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
+      
+      <!-- Control Bar: Search & Actions -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+        <div class="flex flex-wrap items-center gap-3 max-w-lg w-full">
+          <div class="relative flex-1 min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+            <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search item or cost type..." 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-medium">
+          </div>
+          <select id="filterCostType" onchange="handleSearch()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <option value="">All Types</option>
+            <option value="thickness">Thickness</option>
+            <option value="veneer">Veneer</option>
+            <option value="cnc">CNC</option>
+          </select>
+        </div>
+
+        <button onclick="openModal()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add New Rate
         </button>
       </div>
 
-      <!-- TABLE -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap">
-          <thead class="bg-slate-100 text-slate-600 text-xs font-semibold uppercase tracking-wider">
+      <!-- Table Section -->
+      <div class="overflow-x-auto rounded-lg border border-slate-100">
+        <table class="w-full text-left text-xs whitespace-nowrap">
+          <thead class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
             <tr>
-              <th onclick="handleSort('cost_type')" class="p-3 cursor-pointer hover:bg-slate-200">Cost Type <span id="sort-cost_type"></span></th>
-              <th onclick="handleSort('item')" class="p-3 cursor-pointer hover:bg-slate-200">Item Name <span id="sort-item"></span></th>
-              <th onclick="handleSort('rate')" class="p-3 text-right cursor-pointer hover:bg-slate-200">Rate (RM) <span id="sort-rate"></span></th>
-              <th onclick="handleSort('is_active')" class="p-3 text-center cursor-pointer hover:bg-slate-200">Status <span id="sort-is_active"></span></th>
-              <th onclick="handleSort('updated_at')" class="p-3 cursor-pointer hover:bg-slate-200">Updated At <span id="sort-updated_at"></span></th>
-              <th class="p-3 text-center">Actions</th>
+              <th onclick="handleSort('cost_type')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Cost Type <span id="sort-cost_type"></span></th>
+              <th onclick="handleSort('item')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Item Name <span id="sort-item"></span></th>
+              <th onclick="handleSort('rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">Unit Rate (RM) <span id="sort-rate"></span></th>
+              <th onclick="handleSort('is_active')" class="p-3.5 text-center cursor-pointer hover:bg-slate-100 transition">Status <span id="sort-is_active"></span></th>
+              <th onclick="handleSort('updated_at')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Last Updated <span id="sort-updated_at"></span></th>
+              <th class="p-3.5 text-center">Action</th>
             </tr>
           </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100"></tbody>
+          <tbody id="tableBody" class="divide-y divide-slate-100 font-medium">
+            <tr>
+              <td colspan="6" class="p-8 text-center text-slate-400">Loading normal rates from database...</td>
+            </tr>
+          </tbody>
         </table>
       </div>
 
-      <!-- PAGINATION CONTROLS -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 border-t border-slate-100 text-xs text-slate-500">
+      <!-- Pagination & Status -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 text-xs text-slate-500">
         <span id="pageInfo">Showing 0 to 0 of 0 items</span>
         <div class="flex items-center gap-2">
-          <button id="prevBtn" onclick="changePage(-1)" class="px-3 py-1.5 border border-slate-300 rounded-lg disabled:opacity-50">Previous</button>
-          <span id="pageCurrent" class="font-bold text-slate-800">1</span>
-          <button id="nextBtn" onclick="changePage(1)" class="px-3 py-1.5 border border-slate-300 rounded-lg disabled:opacity-50">Next</button>
+          <button id="prevBtn" onclick="changePage(-1)" class="px-3 py-1.5 border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition">Previous</button>
+          <span class="px-2 font-bold text-slate-800" id="pageCurrent">1</span>
+          <button id="nextBtn" onclick="changePage(1)" class="px-3 py-1.5 border border-slate-300 rounded-lg disabled:opacity-40 hover:bg-slate-50 transition">Next</button>
         </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: Create & Edit Normal Rate           -->
+  <!-- ========================================== -->
+  <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transform transition-all">
+      <div class="p-6">
+        <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
+          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="edit-3" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900" id="modalTitle">Edit Normal Rate</h3>
+            <p class="text-xs text-slate-500">Configure standard costs and active visibility</p>
+          </div>
+        </div>
+
+        <input type="hidden" id="normGuid">
+        <div class="space-y-4 text-xs">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Cost Type</label>
+            <select id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none capitalize">
+              <option value="thickness">Thickness</option>
+              <option value="veneer">Veneer</option>
+              <option value="cnc">CNC</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Item Name</label>
+            <input type="text" id="normItem" placeholder="e.g. 加厚1层 or 钻洞" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Unit Rate (RM)</label>
+            <input type="number" step="0.01" id="normRate" placeholder="0.00" 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Status</label>
+            <select id="normActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <option value="1">Active</option>
+              <option value="0">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="bg-slate-50 px-6 py-3.5 flex justify-end gap-2 border-t border-slate-100">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition">
+          Cancel
+        </button>
+        <button type="button" onclick="saveData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+          Save Changes
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL -->
-  <div id="modal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-      <h3 class="text-lg font-bold text-slate-900" id="modalTitle">Edit Normal Rate</h3>
-      <input type="hidden" id="normGuid">
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-medium text-slate-600 mb-1">Cost Type</label>
-          <select id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 capitalize">
-            <option value="veneer">Veneer</option>
-            <option value="cnc">CNC</option>
-            <option value="thickness">Thickness</option>
-          </select>
-        </div>
-        <div>
-          <label class="block font-medium text-slate-600 mb-1">Item Name</label>
-          <input type="text" id="normItem" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5">
-        </div>
-        <div>
-          <label class="block font-medium text-slate-600 mb-1">Rate (RM)</label>
-          <input type="number" step="0.01" id="normRate" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5">
-        </div>
-        <div>
-          <label class="block font-medium text-slate-600 mb-1">Is Active</label>
-          <select id="normActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5">
-            <option value="1">Active</option>
-            <option value="0">Inactive</option>
-          </select>
-        </div>
-      </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 rounded-lg text-xs font-semibold">Cancel</button>
-        <button onclick="saveData()" class="px-4 py-2 bg-brand-600 rounded-lg text-xs font-semibold text-white">Save Changes</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- JavaScript Client Logic -->
   <script>
     const SUPABASE_URL = 'https://hjdxqocqqkvoeligumfv.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo';
@@ -121,18 +196,40 @@
     const fmtCurr = (num) => `RM ${(parseFloat(num) || 0).toFixed(2)}`;
 
     async function loadData() {
-      const { data, error } = await supabaseClient.from('normal_rates').select('*');
-      if (error) return alert('Load failed: ' + error.message);
-      rawData = data || [];
-      applyFilters();
+      const badge = document.getElementById('apiStatusBadge');
+      try {
+        const { data, error } = await supabaseClient.from('normal_rates').select('*');
+        if (error) throw error;
+
+        rawData = data || [];
+        updateSummaryStats();
+        applyFilters();
+
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
+      } catch (err) {
+        console.error("Load failed:", err);
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Connection Error`;
+      }
+    }
+
+    function updateSummaryStats() {
+      document.getElementById('statTotalCount').innerText = rawData.length;
+      document.getElementById('statThicknessCount').innerText = rawData.filter(r => (r.cost_type || '').toLowerCase() === 'thickness').length;
+      document.getElementById('statVeneerCount').innerText = rawData.filter(r => (r.cost_type || '').toLowerCase() === 'veneer').length;
+      document.getElementById('statCncCount').innerText = rawData.filter(r => (r.cost_type || '').toLowerCase() === 'cnc').length;
     }
 
     function applyFilters() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      filteredData = rawData.filter(r => 
-        (r.cost_type || '').toLowerCase().includes(query) || 
-        (r.item || '').toLowerCase().includes(query)
-      );
+      const typeFilter = document.getElementById('filterCostType').value.toLowerCase().trim();
+
+      filteredData = rawData.filter(r => {
+        const matchesQuery = (r.cost_type || '').toLowerCase().includes(query) || (r.item || '').toLowerCase().includes(query);
+        const matchesType = !typeFilter || (r.cost_type || '').toLowerCase() === typeFilter;
+        return matchesQuery && matchesType;
+      });
 
       filteredData.sort((a, b) => {
         let valA = a[sortColumn], valB = b[sortColumn];
@@ -153,23 +250,38 @@
 
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = pageRows.length === 0 
-        ? `<tr><td colspan="6" class="p-4 text-center text-slate-400">No records found.</td></tr>`
-        : pageRows.map(row => `
-          <tr class="hover:bg-slate-50">
-            <td class="p-3"><span class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded font-semibold text-xs capitalize">${row.cost_type}</span></td>
-            <td class="p-3 font-medium text-slate-800">${row.item}</td>
-            <td class="p-3 text-right font-mono font-bold text-emerald-700">${fmtCurr(row.rate)}</td>
-            <td class="p-3 text-center">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${row.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
-                ${row.is_active ? 'Active' : 'Inactive'}
-              </span>
-            </td>
-            <td class="p-3 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleString()}</td>
-            <td class="p-3 text-center">
-              <button onclick="openModal('${row.guid}')" class="text-brand-600 hover:text-brand-800 font-semibold p-1">Edit</button>
-            </td>
-          </tr>
-        `).join('');
+        ? `<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">No records match your filters.</td></tr>`
+        : pageRows.map(row => {
+          const type = (row.cost_type || '').toLowerCase();
+          let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
+          if (type === 'thickness') badgeClass = "bg-emerald-50 text-emerald-800 border-emerald-200";
+          else if (type === 'veneer') badgeClass = "bg-indigo-50 text-indigo-800 border-indigo-200";
+          else if (type === 'cnc') badgeClass = "bg-amber-50 text-amber-800 border-amber-200";
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wide uppercase border ${badgeClass}">
+                  ${row.cost_type}
+                </span>
+              </td>
+              <td class="p-3.5 font-semibold text-slate-900">${row.item}</td>
+              <td class="p-3.5 text-right font-mono font-bold text-slate-900 text-sm">${fmtCurr(row.rate)}</td>
+              <td class="p-3.5 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                  <span class="w-1.5 h-1.5 rounded-full ${row.is_active ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+                  ${row.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </td>
+              <td class="p-3.5 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleDateString()} ${new Date(row.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+              <td class="p-3.5 text-center">
+                <button onclick="openModal('${row.guid}')" class="text-xs font-semibold px-2.5 py-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition">
+                  Edit
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
 
       document.getElementById('pageInfo').innerText = `Showing ${total === 0 ? 0 : start + 1} to ${Math.min(start + pageSize, total)} of ${total} items`;
       document.getElementById('pageCurrent').innerText = currentPage;
@@ -180,6 +292,8 @@
         const el = document.getElementById(`sort-${col}`);
         if (el) el.innerText = sortColumn === col ? (sortAsc ? '▲' : '▼') : '';
       });
+
+      lucide.createIcons();
     }
 
     function handleSearch() { currentPage = 1; applyFilters(); }
@@ -197,14 +311,14 @@
         const item = rawData.find(r => r.guid === guid);
         document.getElementById('modalTitle').innerText = 'Edit Normal Rate';
         document.getElementById('normGuid').value = item.guid;
-        document.getElementById('normCostType').value = (item.cost_type || 'veneer').toLowerCase();
+        document.getElementById('normCostType').value = (item.cost_type || 'thickness').toLowerCase();
         document.getElementById('normItem').value = item.item;
         document.getElementById('normRate').value = item.rate;
         document.getElementById('normActive').value = item.is_active;
       } else {
         document.getElementById('modalTitle').innerText = 'Add New Normal Rate';
         document.getElementById('normGuid').value = '';
-        document.getElementById('normCostType').value = 'veneer';
+        document.getElementById('normCostType').value = 'thickness';
         document.getElementById('normItem').value = '';
         document.getElementById('normRate').value = '';
         document.getElementById('normActive').value = '1';
@@ -216,6 +330,11 @@
       document.getElementById('modal').classList.remove('flex');
     }
 
+    // Backdrop click close
+    document.getElementById('modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
     async function saveData() {
       const guid = document.getElementById('normGuid').value;
       const payload = {
@@ -226,6 +345,8 @@
         updated_at: new Date().toISOString()
       };
 
+      if (!payload.item) return alert('Item name cannot be empty.');
+
       let error;
       if (guid) {
         ({ error } = await supabaseClient.from('normal_rates').update(payload).eq('guid', guid));
@@ -234,12 +355,15 @@
         ({ error } = await supabaseClient.from('normal_rates').insert([payload]));
       }
 
-      if (error) alert('Error: ' + error.message);
+      if (error) alert('Save failed: ' + error.message);
       else { closeModal(); loadData(); }
     }
 
-    lucide.createIcons();
-    loadData();
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadData();
+    });
   </script>
 </body>
 </html>

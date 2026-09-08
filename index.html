@@ -3,640 +3,680 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Table Top Costing Calculator</title>
+  <title>Smart Costing Calculator</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Segoe UI Font & Lucide Icons -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              200: '#bfdbfe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
-    @media print {
-      .no-print { display: none !important; }
-      body { background: white; padding: 0; }
-      .container-card { shadow: none; border: none; }
-      .section-content { display: block !important; }
-    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 min-h-screen py-4 sm:py-8 px-3 sm:px-6 lg:px-8 pb-24 relative flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans relative">
 
-  <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6 w-full">
-    
-    <!-- HEADER & ACTIONS -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between bg-brand-900 text-white rounded-2xl p-4 sm:p-6 shadow-xl gap-4">
-      <div>
-        <h1 class="text-xl sm:text-3xl font-bold tracking-tight">Table Top Costing Calculator</h1>
-        <p class="text-brand-200 text-xs sm:text-sm mt-1">Real-time dimension calculations & cost breakdown</p>
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
+          <i data-lucide="calculator" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">Fabrication Costing Calculator</h1>
+          <p class="text-xs text-slate-500">Thickness, Veneer & CNC Router Real-time Estimator</p>
+        </div>
       </div>
-      <div class="flex items-center gap-2 sm:gap-3 no-print">
-        <button onclick="resetDefaults()" class="flex-1 md:flex-none justify-center inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all border border-brand-700 shadow-sm">
-          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
+      <div class="flex items-center gap-3">
+        <span id="apiStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting API...
+        </span>
+        <button onclick="resetCalculator()" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Clear All
         </button>
-        <button onclick="window.print()" class="flex-1 md:flex-none justify-center inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all shadow-md">
-          <i data-lucide="printer" class="w-4 h-4"></i> Export / Print
-        </button>
-        <a href="config-index.html" class="flex-1 md:flex-none justify-center inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all border border-brand-700 shadow-sm">
-          <i data-lucide="settings" class="w-4 h-4"></i> Configuration
-        </a>
-      </div>
-    </header>
-
-    <!-- SUMMARY CARDS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-      <div class="bg-white rounded-xl p-3 sm:p-5 border border-slate-200 shadow-sm">
-        <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider block">Thickness Cost</span>
-        <div class="text-lg sm:text-2xl font-bold text-slate-900 mt-1" id="cardThicknessCost">RM 0.00</div>
-      </div>
-      <div class="bg-white rounded-xl p-3 sm:p-5 border border-slate-200 shadow-sm">
-        <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider block">Veneer Cost</span>
-        <div class="text-lg sm:text-2xl font-bold text-slate-900 mt-1" id="cardVeneerCost">RM 0.00</div>
-      </div>
-      <div class="bg-white rounded-xl p-3 sm:p-5 border border-slate-200 shadow-sm">
-        <span class="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider block">CNC Router Cost</span>
-        <div class="text-lg sm:text-2xl font-bold text-slate-900 mt-1" id="cardCncCost">RM 0.00</div>
-      </div>
-      <div class="bg-brand-50 rounded-xl p-3 sm:p-5 border border-brand-200 shadow-sm">
-        <span class="text-[10px] sm:text-xs font-semibold text-brand-700 uppercase tracking-wider block">Grand Total</span>
-        <div class="text-xl sm:text-3xl font-extrabold text-brand-900 mt-1" id="cardGrandTotal">RM 0.00</div>
       </div>
     </div>
+  </header>
 
-    <!-- MAIN GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT COLUMN: INPUTS & DIMENSIONS -->
-      <div class="space-y-4 sm:space-y-6">
-        
-        <!-- Input Parameters -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <button onclick="toggleSection('secInputs', 'iconInputs')" class="w-full bg-brand-600 text-white px-4 sm:px-6 py-3 sm:py-3.5 font-semibold text-sm sm:text-base flex items-center justify-between focus:outline-none">
-            <span class="flex items-center gap-2"><i data-lucide="sliders" class="w-4 h-4"></i> Input Parameters</span>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] sm:text-xs bg-brand-700 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-brand-100">Editable</span>
-              <i data-lucide="chevron-up" id="iconInputs" class="w-5 h-5 transition-transform duration-200"></i>
-            </div>
-          </button>
-          <div id="secInputs" class="p-4 sm:p-6 space-y-3 sm:space-y-4 section-content">
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Length (mm)</label>
-              <input type="number" id="inputLength" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Width (mm)</label>
-              <input type="number" id="inputWidth" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Height (mm)</label>
-              <input type="number" id="inputHeight" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1">Thickness (mm)</label>
-                <input type="number" id="inputThickness" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1">Thickness Qty</label>
-                <input type="number" id="inputThicknessQty" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-500 mb-1">Thickness Width (mm)</label>
-              <input type="number" id="inputThicknessWidth" value="" placeholder="0" oninput="calculateAll()" class="w-full bg-brand-50 border border-brand-200 rounded-lg px-3 py-2 text-brand-900 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
-            </div>
+    <!-- Left Column: Inputs & Multi-Selections (7 Cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- 1. Geometry Dimensions Card -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
+          <i data-lucide="box" class="w-5 h-5 text-emerald-600"></i>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">1. Dimension Inputs (mm)</h2>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Length (mm)</label>
+            <input type="number" id="inputLength" placeholder="e.g. 1200" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Width (mm)</label>
+            <input type="number" id="inputWidth" placeholder="e.g. 600" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Height (mm)</label>
+            <input type="number" id="inputHeight" placeholder="e.g. 18" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Thickness (mm)</label>
+            <input type="number" id="inputThickness" placeholder="e.g. 16" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Thickness Width (mm)</label>
+            <input type="number" id="inputThicknessWidth" placeholder="e.g. 25" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+          </div>
+          <div class="flex flex-col justify-end">
+            <span class="text-[11px] text-slate-500">Total Thickness:</span>
+            <span id="previewTotalThickness" class="text-sm font-bold text-slate-400">0 mm</span>
           </div>
         </div>
 
-        <!-- Calculated Dimensions -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <button onclick="toggleSection('secDims', 'iconDims')" class="w-full bg-slate-800 text-white px-4 sm:px-6 py-3 sm:py-3.5 font-semibold text-sm sm:text-base flex items-center justify-between focus:outline-none">
-            <span class="flex items-center gap-2"><i data-lucide="ruler" class="w-4 h-4"></i> Calculated Dimensions</span>
-            <i data-lucide="chevron-up" id="iconDims" class="w-5 h-5 transition-transform duration-200"></i>
-          </button>
-          <div id="secDims" class="p-4 sm:p-6 space-y-2.5 sm:space-y-3 bg-emerald-50/40 section-content">
-            <div class="flex justify-between items-center text-xs sm:text-sm py-1 border-b border-emerald-100">
-              <span class="text-slate-600 font-medium">Perimeter (mm)</span>
-              <span class="font-bold text-slate-900" id="dimPerimeterMm">0</span>
-            </div>
-            <div class="flex justify-between items-center text-xs sm:text-sm py-1 border-b border-emerald-100">
-              <span class="text-slate-600 font-medium">Perimeter (m)</span>
-              <span class="font-bold text-slate-900" id="dimPerimeterM">0.00</span>
-            </div>
-            <div class="flex justify-between items-center text-xs sm:text-sm py-1 border-b border-emerald-100">
-              <span class="text-slate-600 font-medium">Volume (mm³)</span>
-              <span class="font-bold text-slate-900" id="dimVolumeMm">0</span>
-            </div>
-            <div class="flex justify-between items-center text-xs sm:text-sm py-1">
-              <span class="text-slate-600 font-medium">Volume (m³)</span>
-              <span class="font-bold text-slate-900" id="dimVolumeM">0.00000</span>
-            </div>
+        <!-- Step Toggles -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4">
+          <span class="text-xs font-bold text-slate-700">Steps Involved:</span>
+          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepThickness" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+            Thickness
+          </label>
+          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepVeneer" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+            Veneer
+          </label>
+          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepCnc" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+            CNC Router
+          </label>
+        </div>
+      </section>
+
+      <!-- 2. Dynamic Rate & Labour Multi-Selection Sections -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-5">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-emerald-600"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">2. Rate & Labour Multi-Select Fields</h2>
           </div>
         </div>
 
-      </div>
-
-      <!-- RIGHT COLUMN: TABLES -->
-      <div class="lg:col-span-2 space-y-4 sm:space-y-6">
-
-        <!-- 1. THICKNESS & RECUTTING COSTING -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <button onclick="toggleSection('secThickness', 'iconThickness')" class="w-full bg-brand-600 text-white px-4 sm:px-6 py-3 sm:py-3.5 font-semibold text-sm sm:text-base flex items-center justify-between focus:outline-none">
-            <span>1. Thickness & Recutting Costing</span>
-            <i data-lucide="chevron-up" id="iconThickness" class="w-5 h-5 transition-transform duration-200"></i>
-          </button>
-          <div id="secThickness" class="overflow-x-auto section-content">
-            <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap min-w-[500px]">
-              <thead class="bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
-                <tr>
-                  <th class="p-2 sm:p-3 pl-4 sm:pl-6">Item</th>
-                  <th class="p-2 sm:p-3 text-right">Rate</th>
-                  <th class="p-2 sm:p-3 text-center">Qty</th>
-                  <th class="p-2 sm:p-3 text-right">Perimeter</th>
-                  <th class="p-2 sm:p-3 text-right">Cost (RM)</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">加厚1层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.35</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t1_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t1_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t1_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">加厚2层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.95</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t2_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t2_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t2_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">八卦 / D shape / Round apron</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.95</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t3_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t3_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t3_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">中间加骨</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.50</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t4_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t4_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">特别款式</td>
-                  <td class="p-2 sm:p-3 text-right"><input type="number" id="t5_rate" value="" placeholder="0.00" step="0.01" oninput="calculateAll()" class="w-16 sm:w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-1.5 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t5_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right"><input type="number" id="t5_perim" value="" placeholder="0.00" step="0.01" oninput="calculateAll()" class="w-16 sm:w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-1.5 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t5_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">Apron</td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t6_rate">RM 0.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t6_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t6_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t6_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">Backer</td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t7_rate">RM 0.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="t7_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="t7_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="t7_cost">RM 0.00</td>
-                </tr>
-              </tbody>
-              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
-                <tr>
-                  <td colspan="4" class="p-2 sm:p-3 pl-4 sm:pl-6 text-brand-900">Total Thickness Cost</td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-brand-900 text-sm sm:text-base" id="totalThicknessCost">RM 0.00</td>
-                </tr>
-              </tfoot>
-            </table>
+        <!-- Field A: Thickness Normal Rates -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>Thickness Step Costs (Normal Rates)</span>
+          </label>
+          <div id="containerThicknessNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
 
-        <!-- 2. VENEER EDGING COSTING -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <button onclick="toggleSection('secVeneer', 'iconVeneer')" class="w-full bg-brand-600 text-white px-4 sm:px-6 py-3 sm:py-3.5 font-semibold text-sm sm:text-base flex items-center justify-between focus:outline-none">
-            <span>2. Veneer Edging Costing</span>
-            <i data-lucide="chevron-up" id="iconVeneer" class="w-5 h-5 transition-transform duration-200"></i>
-          </button>
-          <div id="secVeneer" class="overflow-x-auto section-content">
-            <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap min-w-[500px]">
-              <thead class="bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
-                <tr>
-                  <th class="p-2 sm:p-3 pl-4 sm:pl-6">Item</th>
-                  <th class="p-2 sm:p-3 text-right">Rate</th>
-                  <th class="p-2 sm:p-3 text-center">Qty</th>
-                  <th class="p-2 sm:p-3 text-right">Perimeter</th>
-                  <th class="p-2 sm:p-3 text-right">Cost (RM)</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">直边1层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.10</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v1_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v1_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v1_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">直边2层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 1.50</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v2_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v2_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v2_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">直边3层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 2.10</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v3_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v3_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v3_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">curve曲边1层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 2.20</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v4_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v4_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v4_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">curve曲边2层</td>
-                  <td class="p-2 sm:p-3 text-right">RM 3.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v5_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v5_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v5_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">特别款式</td>
-                  <td class="p-2 sm:p-3 text-right"><input type="number" id="v6_rate" value="" placeholder="0.00" step="0.01" oninput="calculateAll()" class="w-16 sm:w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-1.5 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v6_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right"><input type="number" id="v6_perim" value="" placeholder="0.00" step="0.01" oninput="calculateAll()" class="w-16 sm:w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-1.5 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v6_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">Veneer</td>
-                  <td class="p-2 sm:p-3 text-right">RM 0.35</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="v7_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="v7_perim">0.00</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="v7_cost">RM 0.00</td>
-                </tr>
-              </tbody>
-              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
-                <tr>
-                  <td colspan="4" class="p-2 sm:p-3 pl-4 sm:pl-6 text-brand-900">Total Veneer Cost</td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-brand-900 text-sm sm:text-base" id="totalVeneerCost">RM 0.00</td>
-                </tr>
-              </tfoot>
-            </table>
+        <!-- Field B: Thickness Labour Services -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>Thickness Labour Services</span>
+          </label>
+          <div id="containerThicknessLabour" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
 
-        <!-- 3. CNC ROUTER COSTING -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="bg-brand-600 text-white px-4 sm:px-6 py-3 sm:py-3.5 font-semibold text-sm sm:text-base flex items-center justify-between">
-            <button onclick="toggleSection('secCnc', 'iconCnc')" class="flex items-center gap-2 focus:outline-none flex-1 text-left">
-              <span>3. CNC Router Costing</span>
-              <i data-lucide="chevron-up" id="iconCnc" class="w-5 h-5 transition-transform duration-200"></i>
-            </button>
-            <div class="flex items-center gap-2 text-xs no-print">
-              <span class="whitespace-nowrap hidden sm:inline">Solid Material:</span>
-              <select id="cncSolidMaterial" onchange="calculateAll()" class="bg-brand-800 text-white border border-brand-500 rounded px-2 py-1 focus:outline-none font-bold text-xs">
-                <option value="No">Solid: No</option>
-                <option value="Yes">Solid: Yes (+ RM 50/m³)</option>
-              </select>
-            </div>
-          </div>
-          <div id="secCnc" class="overflow-x-auto section-content">
-            <table class="w-full text-left text-xs sm:text-sm whitespace-nowrap min-w-[500px]">
-              <thead class="bg-slate-100 text-slate-600 text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
-                <tr>
-                  <th class="p-2 sm:p-3 pl-4 sm:pl-6">Item</th>
-                  <th class="p-2 sm:p-3 text-right">Rate</th>
-                  <th class="p-2 sm:p-3 text-center">Qty</th>
-                  <th class="p-2 sm:p-3 text-right">Basis (m³ / unit)</th>
-                  <th class="p-2 sm:p-3 text-right">Cost (RM)</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">MDF 平刀</td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c1_rate">RM 180.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c1_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c1_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c1_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">MDF 刀型</td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c2_rate">RM 200.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c2_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c2_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c2_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">加厚</td>
-                  <td class="p-2 sm:p-3 text-right">RM 50.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c3_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c3_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c3_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">尺寸 > 1200mm × 1200mm</td>
-                  <td class="p-2 sm:p-3 text-right">RM 50.00</td>
-                  <td class="p-2 sm:p-3 text-center font-bold font-mono text-slate-700" id="c4_qty">0</td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c4_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c4_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">Solid Rubber Wood</td>
-                  <td class="p-2 sm:p-3 text-right">RM 50.00</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c5_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c5_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c5_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">钻洞</td>
-                  <td class="p-2 sm:p-3 text-right">RM 0.10</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c6_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c6_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">钻nut</td>
-                  <td class="p-2 sm:p-3 text-right">RM 0.10</td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c7_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-slate-400">-</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c7_cost">RM 0.00</td>
-                </tr>
-                <tr>
-                  <td class="p-2 sm:p-3 pl-4 sm:pl-6 font-medium">特别款式</td>
-                  <td class="p-2 sm:p-3 text-right"><input type="number" id="c8_rate" value="" placeholder="0.00" step="0.01" oninput="calculateAll()" class="w-16 sm:w-20 bg-brand-50 border border-brand-200 rounded text-right font-bold text-brand-900 py-1 px-1.5 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-center"><input type="number" id="c8_qty" value="" placeholder="0" oninput="calculateAll()" class="w-14 sm:w-16 bg-brand-50 border border-brand-200 rounded text-center font-bold text-brand-900 py-1 text-xs sm:text-sm"></td>
-                  <td class="p-2 sm:p-3 text-right font-mono" id="c8_basis">0.00000</td>
-                  <td class="p-2 sm:p-3 text-right font-mono font-bold text-emerald-700 bg-emerald-50/50" id="c8_cost">RM 0.00</td>
-                </tr>
-              </tbody>
-              <tfoot class="bg-brand-100/70 border-t border-brand-200 font-bold">
-                <tr>
-                  <td colspan="4" class="p-2 sm:p-3 pl-4 sm:pl-6 text-brand-900">Total CNC Cost</td>
-                  <td class="p-2 sm:p-3 text-right font-mono text-brand-900 text-sm sm:text-base" id="totalCncCost">RM 0.00</td>
-                </tr>
-              </tfoot>
-            </table>
+        <hr class="border-slate-100">
+
+        <!-- Field C: Veneer Normal Rates -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>Veneer Step Costs (Normal Rates)</span>
+          </label>
+          <div id="containerVeneerNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
 
-      </div>
+        <!-- Field D: Veneer Labour Services -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>Veneer Labour Services</span>
+          </label>
+          <div id="containerVeneerLabour" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
+          </div>
+        </div>
 
+        <hr class="border-slate-100">
+
+        <!-- Field E: CNC Thickness Profiles -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>CNC Thickness Profiles (Thickness Rates)</span>
+          </label>
+          <div id="containerCncThickness" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
+          </div>
+        </div>
+
+        <!-- Field F: CNC Normal Rates -->
+        <div>
+          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span>CNC Normal Rates (Add-ons)</span>
+          </label>
+          <div id="containerCncNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="text-xs text-slate-400 py-2">Loading options...</div>
+          </div>
+        </div>
+
+      </section>
     </div>
 
+    <!-- Right Column: Live Results & Summaries (5 Cols) -->
+    <div class="lg:col-span-5 space-y-6">
+
+      <!-- Grand Total Card -->
+      <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl shadow-md p-6 relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 opacity-10 text-white">
+          <i data-lucide="receipt" class="w-32 h-32"></i>
+        </div>
+        <div class="text-xs font-bold tracking-widest text-emerald-400 uppercase mb-1">Total Estimated Cost</div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-4xl font-extrabold" id="cardGrandTotal">RM 0.00</span>
+          <span class="text-xs text-slate-400">MYR</span>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-700/60 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <span class="text-slate-400 block">Total Material/Steps:</span>
+            <span class="font-semibold text-slate-200" id="cardTotalStepsCost">RM 0.00</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block">Total Labour Cost:</span>
+            <span class="font-semibold text-slate-200" id="cardTotalLabourCost">RM 0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step & Labour Breakdown (Enlarged & Enhanced) -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-600"></i> Step & Labour Breakdown
+          </h3>
+        </div>
+
+        <!-- Thickness Cost Row -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+          <div class="space-y-1">
+            <span class="font-bold text-slate-900 text-sm sm:text-base block">Thickness Step</span>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Step: <strong class="text-slate-800" id="costThicknessStep">RM 0.00</strong>
+              </span>
+              <span class="text-slate-300">|</span>
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-emerald-700" id="costThicknessLabour">RM 0.00</strong>
+              </span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costThicknessTotal">RM 0.00</span>
+          </div>
+        </div>
+
+        <!-- Veneer Cost Row -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+          <div class="space-y-1">
+            <span class="font-bold text-slate-900 text-sm sm:text-base block">Veneer Edging Step</span>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Step: <strong class="text-slate-800" id="costVeneerStep">RM 0.00</strong>
+              </span>
+              <span class="text-slate-300">|</span>
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-emerald-700" id="costVeneerLabour">RM 0.00</strong>
+              </span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costVeneerTotal">RM 0.00</span>
+          </div>
+        </div>
+
+        <!-- CNC Cost Row -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+          <div class="space-y-1">
+            <span class="font-bold text-slate-900 text-sm sm:text-base block">CNC Router Step</span>
+            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Step: <strong class="text-slate-800" id="costCncStep">RM 0.00</strong>
+              </span>
+              <span class="text-slate-300">|</span>
+              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-emerald-700" id="costCncLabour">RM 0.00</strong>
+              </span>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costCncTotal">RM 0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Dimension Breakdown Card -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
+          <i data-lucide="ruler" class="w-4 h-4 text-emerald-600"></i> Calculated Dimensions
+        </h3>
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <span class="text-slate-500 block">Perimeter</span>
+            <span class="font-bold text-slate-800 text-sm" id="dimPerimeterM">0.00 m</span>
+            <span class="text-[10px] text-slate-400 block" id="dimPerimeterMm">(0 mm)</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <span class="text-slate-500 block">Volume</span>
+            <span class="font-bold text-slate-800 text-sm" id="dimVolumeM3">0.0000 m³</span>
+            <span class="text-[10px] text-slate-400 block" id="dimVolumeMm3">(0 mm³)</span>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- Active Applied Rates (Enlarged & Enhanced) -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <i data-lucide="tag" class="w-5 h-5 text-emerald-600"></i> Active Applied Rates
+          </h3>
+          <span class="text-xs text-slate-400 font-medium">Applied Rules</span>
+        </div>
+
+        <!-- Increased scrollable height from max-h-48 (192px) to max-h-72 (288px) -->
+        <div class="max-h-72 overflow-y-auto pr-1.5 space-y-2">
+          <ul id="appliedRatesList" class="divide-y divide-slate-100 text-xs sm:text-sm">
+            <li class="py-4 text-slate-400 text-center italic">No rates currently selected</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: Error Notification Dialog           -->
+  <!-- ========================================== -->
+  <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transform transition-all">
+      <div class="p-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-bold text-slate-900 leading-6" id="modalTitle">Rate Validation Notice</h3>
+            <p class="text-xs text-slate-600 mt-2 leading-relaxed" id="modalMessage">
+              An error occurred during calculation.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-slate-50 px-6 py-3.5 flex justify-end border-t border-slate-100">
+        <button type="button" onclick="closeErrorModal()"
+          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+          Dismiss
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- FOOTER SECTION -->
-  <footer class="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-500 max-w-7xl mx-auto w-full">
-    <p>&copy; <span id="copyrightYear">2026</span> SW做给CH的. All rights reserved.</p>
-  </footer>
-
-  <!-- FLOATING BACK TO TOP BUTTON -->
-  <button id="backToTopBtn" onclick="scrollToTop()" aria-label="Back to top" class="no-print fixed bottom-6 right-6 hidden bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white p-3 rounded-full shadow-2xl transition-all duration-300 z-50 group focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
-    <i data-lucide="arrow-up" class="w-5 h-5 transition-transform group-hover:-translate-y-0.5"></i>
-  </button>
-
+  <!-- JavaScript Application Logic -->
   <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
+    // ==========================================
+    // 1. SUPABASE CONFIGURATION
+    // ==========================================
+    const SUPABASE_PROJECT_URL = "https://hjdxqocqqkvoeligumfv.supabase.co";
+    // 👉 Replace with your actual anon public key from Supabase Dashboard:
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo"; 
 
-    // Dynamic Copyright Year
-    document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+    const OPTIONS_RPC_URL   = `${SUPABASE_PROJECT_URL}/rest/v1/rpc/get_calculator_options`;
+    const CALCULATE_RPC_URL = `${SUPABASE_PROJECT_URL}/rest/v1/rpc/calculate_cost`;
 
-    // Toggle Section Accordions
-    function toggleSection(sectionId, iconId) {
-      const section = document.getElementById(sectionId);
-      const icon = document.getElementById(iconId);
-      if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden');
-        icon.style.transform = 'rotate(0deg)';
-      } else {
-        section.classList.add('hidden');
-        icon.style.transform = 'rotate(180deg)';
+    // Helpers
+    const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
+    const fmtCurr = (num) => `RM ${round2(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmtNum = (num, d = 2) => round2(num || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+    let debounceTimer = null;
+    let lastErrorDisplayed = null;
+
+    // ==========================================
+    // 2. MODAL CONTROLS
+    // ==========================================
+    function showErrorModal(message, title = "Rate Validation Notice") {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalMessage').innerText = message;
+      document.getElementById('errorModal').classList.remove('hidden');
+      lastErrorDisplayed = message;
+    }
+
+    function closeErrorModal() {
+      document.getElementById('errorModal').classList.add('hidden');
+    }
+
+    // Close modal when clicking on backdrop
+    document.getElementById('errorModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeErrorModal();
+      }
+    });
+
+    // ==========================================
+    // 3. FETCH OPTIONS & BUILD DYNAMIC CHECKBOXES
+    // ==========================================
+    async function loadOptionsFromDatabase() {
+      const badge = document.getElementById('apiStatusBadge');
+      try {
+        const response = await fetch(OPTIONS_RPC_URL, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+
+        const data = await response.json();
+        
+        // Populate Multi-Selection Fields dynamically
+        renderCheckboxGroup('containerThicknessNormal', data.thickness_normal_rates || [], 'item', 'rate', 'item_norm');
+        renderCheckboxGroup('containerThicknessLabour', data.thickness_labour || [], 'service_name', 'cost', 'labour');
+        renderCheckboxGroup('containerVeneerNormal',    data.veneer_normal_rates || [], 'item', 'rate', 'item_norm');
+        renderCheckboxGroup('containerVeneerLabour',    data.veneer_labour || [], 'service_name', 'cost', 'labour');
+        renderCheckboxGroup('containerCncThickness',    data.cnc_thickness_rates || [], 'item', 'flat_rate', 'item_thick');
+        renderCheckboxGroup('containerCncNormal',       data.cnc_normal_rates || [], 'item', 'rate', 'item_norm');
+
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error("Options fetch failed:", err);
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Connection Failed`;
+        showErrorModal("Could not connect to Supabase to retrieve calculator options. Please verify your API key and connection.", "Connection Error");
       }
     }
 
-    // Helper functions
-    const fmtCurr = (num) => `RM ${(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    const fmtNum = (num, decimals = 2) => (num || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-
-    // Back to Top Scroll Logic
-    const backToTopBtn = document.getElementById('backToTopBtn');
-    window.onscroll = function () {
-      if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-        backToTopBtn.classList.remove('hidden');
-      } else {
-        backToTopBtn.classList.add('hidden');
+    function renderCheckboxGroup(containerId, list, labelKey, rateKey, groupClass) {
+      const container = document.getElementById(containerId);
+      if (!list || list.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-slate-400 py-1">No items configured</div>`;
+        return;
       }
-    };
 
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      container.innerHTML = list.map(item => `
+        <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer transition text-xs">
+          <input type="checkbox" value="${item[labelKey]}" class="${groupClass} rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5" onchange="triggerCalculate()">
+          <div class="truncate">
+            <span class="font-medium text-slate-800 block truncate">${item[labelKey]}</span>
+            <span class="text-[10px] text-slate-500">${fmtCurr(item[rateKey])}</span>
+          </div>
+        </label>
+      `).join('');
     }
 
-    function calculateAll() {
-      // 1. Get Base Inputs
+    // ==========================================
+    // 4. EXECUTE CALCULATION RPC
+    // ==========================================
+    function triggerCalculate() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(performCalculation, 300);
+    }
+
+    async function performCalculation() {
       const length = parseFloat(document.getElementById('inputLength').value) || 0;
       const width = parseFloat(document.getElementById('inputWidth').value) || 0;
       const height = parseFloat(document.getElementById('inputHeight').value) || 0;
       const thickness = parseFloat(document.getElementById('inputThickness').value) || 0;
-      const thicknessQty = parseFloat(document.getElementById('inputThicknessQty').value) || 0;
       const thicknessWidth = parseFloat(document.getElementById('inputThicknessWidth').value) || 0;
 
-      // 2. Calculate Dimensions
-      const perimMm = 2 * (length + width);
-      const perimM = perimMm / 1000;
-      const volMm = (height + (thickness * thicknessQty)) * width * length;
-      const volM = volMm / 1000000000;
+      // Update Total Thickness preview
+      const totalThickness = height + thickness;
+      document.getElementById('previewTotalThickness').innerText = `${totalThickness} mm`;
+      document.getElementById('previewTotalThickness').className = totalThickness > 0 ? "text-sm font-bold text-emerald-700" : "text-sm font-bold text-slate-400";
 
-      document.getElementById('dimPerimeterMm').innerText = fmtNum(perimMm, 0);
-      document.getElementById('dimPerimeterM').innerText = fmtNum(perimM, 2);
-      document.getElementById('dimVolumeMm').innerText = fmtNum(volMm, 0);
-      document.getElementById('dimVolumeM').innerText = fmtNum(volM, 5);
+      // If dimensions are missing, reset display and stop
+      if (length <= 0 || width <= 0) {
+        clearResults();
+        return;
+      }
 
-      // 3. Thickness Section
-      const t1_qty = parseFloat(document.getElementById('t1_qty').value) || 0;
-      const t1_cost = 1.35 * t1_qty * perimM;
-      document.getElementById('t1_perim').innerText = fmtNum(perimM);
-      document.getElementById('t1_cost').innerText = fmtCurr(t1_cost);
+      // Gather Steps
+      const steps = [];
+      if (document.getElementById('stepThickness').checked) steps.push('thickness');
+      if (document.getElementById('stepVeneer').checked) steps.push('veneer');
+      if (document.getElementById('stepCnc').checked) steps.push('cnc');
 
-      const t2_qty = parseFloat(document.getElementById('t2_qty').value) || 0;
-      const t2_cost = 1.95 * t2_qty * perimM;
-      document.getElementById('t2_perim').innerText = fmtNum(perimM);
-      document.getElementById('t2_cost').innerText = fmtCurr(t2_cost);
+      // If no steps selected, clear results
+      if (steps.length === 0) {
+        clearResults();
+        return;
+      }
 
-      const t3_qty = parseFloat(document.getElementById('t3_qty').value) || 0;
-      const t3_cost = 1.95 * t3_qty * perimM;
-      document.getElementById('t3_perim').innerText = fmtNum(perimM);
-      document.getElementById('t3_cost').innerText = fmtCurr(t3_cost);
+      // Gather Multi-Selected Arrays
+      const labourItems = Array.from(document.querySelectorAll('input.labour:checked')).map(el => el.value);
+      const normalRateItems = Array.from(document.querySelectorAll('input.item_norm:checked')).map(el => el.value);
+      const thicknessRateItems = Array.from(document.querySelectorAll('input.item_thick:checked')).map(el => el.value);
 
-      const t4_qty = parseFloat(document.getElementById('t4_qty').value) || 0;
-      const t4_cost = 1.50 * t4_qty;
-      document.getElementById('t4_cost').innerText = fmtCurr(t4_cost);
+      const payload = {
+        p_length: length,
+        p_width: width,
+        p_height: height,
+        p_thickness: thickness,
+        p_thickness_width: thicknessWidth,
+        p_steps: steps,
+        p_labour: labourItems,
+        p_thickness_rate_item: thicknessRateItems,
+        p_normal_rate_item: normalRateItems
+      };
 
-      const t5_rate = parseFloat(document.getElementById('t5_rate').value) || 0;
-      const t5_qty = parseFloat(document.getElementById('t5_qty').value) || 0;
-      const t5_perim = parseFloat(document.getElementById('t5_perim').value) || 0;
-      const t5_cost = t5_rate * t5_qty * t5_perim;
-      document.getElementById('t5_cost').innerText = fmtCurr(t5_cost);
+      try {
+        const response = await fetch(CALCULATE_RPC_URL, {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+          },
+          body: JSON.stringify(payload)
+        });
 
-      // Apron Rule: if thicknessWidth > 100 then 2.00/m, else 1.00/m
-      const t6_rate = thicknessWidth > 100 ? 2.00 : 1.00;
-      const t6_qty = parseFloat(document.getElementById('t6_qty').value) || 0;
-      const t6_cost = t6_rate * t6_qty * perimM;
-      document.getElementById('t6_rate').innerText = fmtCurr(t6_rate);
-      document.getElementById('t6_perim').innerText = fmtNum(perimM);
-      document.getElementById('t6_cost').innerText = fmtCurr(t6_cost);
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({ message: response.statusText }));
+          const cleanMessage = err.message || "Calculation failed";
+          
+          // Show error in modal if it's new
+          if (lastErrorDisplayed !== cleanMessage) {
+            showErrorModal(cleanMessage, "Calculation Exception");
+          }
+          clearResults();
+          return;
+        }
 
-      // Backer Rule: if thicknessWidth > 80 then 2.00/m, else 1.00/m
-      const t7_rate = thicknessWidth > 80 ? 2.00 : 1.00;
-      const t7_qty = parseFloat(document.getElementById('t7_qty').value) || 0;
-      const t7_cost = t7_rate * t7_qty * perimM;
-      document.getElementById('t7_rate').innerText = fmtCurr(t7_rate);
-      document.getElementById('t7_perim').innerText = fmtNum(perimM);
-      document.getElementById('t7_cost').innerText = fmtCurr(t7_cost);
+        lastErrorDisplayed = null; // Clear error tracker on success
+        const res = await response.json();
+        updateUI(res);
 
-      const totalThicknessCost = t1_cost + t2_cost + t3_cost + t4_cost + t5_cost + t6_cost + t7_cost;
-      document.getElementById('totalThicknessCost').innerText = fmtCurr(totalThicknessCost);
-      document.getElementById('cardThicknessCost').innerText = fmtCurr(totalThicknessCost);
-
-      // 4. Veneer Section
-      const calcVeneerCost = (rate, qty) => qty === 0 ? 0 : Math.max(rate * qty * perimM, 0.50 * qty);
-
-      const v1_qty = parseFloat(document.getElementById('v1_qty').value) || 0;
-      const v1_cost = calcVeneerCost(1.10, v1_qty);
-      document.getElementById('v1_perim').innerText = fmtNum(perimM);
-      document.getElementById('v1_cost').innerText = fmtCurr(v1_cost);
-
-      const v2_qty = parseFloat(document.getElementById('v2_qty').value) || 0;
-      const v2_cost = calcVeneerCost(1.50, v2_qty);
-      document.getElementById('v2_perim').innerText = fmtNum(perimM);
-      document.getElementById('v2_cost').innerText = fmtCurr(v2_cost);
-
-      const v3_qty = parseFloat(document.getElementById('v3_qty').value) || 0;
-      const v3_cost = calcVeneerCost(2.10, v3_qty);
-      document.getElementById('v3_perim').innerText = fmtNum(perimM);
-      document.getElementById('v3_cost').innerText = fmtCurr(v3_cost);
-
-      const v4_qty = parseFloat(document.getElementById('v4_qty').value) || 0;
-      const v4_cost = calcVeneerCost(2.20, v4_qty);
-      document.getElementById('v4_perim').innerText = fmtNum(perimM);
-      document.getElementById('v4_cost').innerText = fmtCurr(v4_cost);
-
-      const v5_qty = parseFloat(document.getElementById('v5_qty').value) || 0;
-      const v5_cost = calcVeneerCost(3.00, v5_qty);
-      document.getElementById('v5_perim').innerText = fmtNum(perimM);
-      document.getElementById('v5_cost').innerText = fmtCurr(v5_cost);
-
-      const v6_rate = parseFloat(document.getElementById('v6_rate').value) || 0;
-      const v6_qty = parseFloat(document.getElementById('v6_qty').value) || 0;
-      const v6_perim = parseFloat(document.getElementById('v6_perim').value) || 0;
-      const v6_cost = v6_rate * v6_qty * v6_perim;
-      document.getElementById('v6_cost').innerText = fmtCurr(v6_cost);
-
-      const v7_qty = parseFloat(document.getElementById('v7_qty').value) || 0;
-      const v7_cost = 0.35 * v7_qty * perimM;
-      document.getElementById('v7_perim').innerText = fmtNum(perimM);
-      document.getElementById('v7_cost').innerText = fmtCurr(v7_cost);
-
-      const totalVeneerCost = v1_cost + v2_cost + v3_cost + v4_cost + v5_cost + v6_cost + v7_cost;
-      document.getElementById('totalVeneerCost').innerText = fmtCurr(totalVeneerCost);
-      document.getElementById('cardVeneerCost').innerText = fmtCurr(totalVeneerCost);
-
-      // 5. CNC Section
-      const isSolid = document.getElementById('cncSolidMaterial').value === 'Yes';
-      const c1_rate = 180 + (isSolid ? 50 : 0);
-      const c1_qty = parseFloat(document.getElementById('c1_qty').value) || 0;
-      const c1_cost = c1_qty === 0 ? 0 : Math.max(c1_rate * volM, 1.30) * c1_qty;
-      document.getElementById('c1_rate').innerText = fmtCurr(c1_rate);
-      document.getElementById('c1_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c1_cost').innerText = fmtCurr(c1_cost);
-
-      const c2_rate = 200 + (isSolid ? 50 : 0);
-      const c2_qty = parseFloat(document.getElementById('c2_qty').value) || 0;
-      const c2_cost = c2_qty === 0 ? 0 : Math.max(c2_rate * volM, 1.50) * c2_qty;
-      document.getElementById('c2_rate').innerText = fmtCurr(c2_rate);
-      document.getElementById('c2_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c2_cost').innerText = fmtCurr(c2_cost);
-
-      const c3_qty = parseFloat(document.getElementById('c3_qty').value) || 0;
-      const c3_cost = 50 * volM * c3_qty;
-      document.getElementById('c3_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c3_cost').innerText = fmtCurr(c3_cost);
-
-      const c4_qty = (length > 1200 && width > 1200) ? 1 : 0;
-      const c4_cost = 50 * volM * c4_qty;
-      document.getElementById('c4_qty').innerText = c4_qty;
-      document.getElementById('c4_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c4_cost').innerText = fmtCurr(c4_cost);
-
-      const c5_qty = parseFloat(document.getElementById('c5_qty').value) || 0;
-      const c5_cost = 50 * volM * c5_qty;
-      document.getElementById('c5_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c5_cost').innerText = fmtCurr(c5_cost);
-
-      const c6_qty = parseFloat(document.getElementById('c6_qty').value) || 0;
-      const c6_cost = 0.10 * c6_qty;
-      document.getElementById('c6_cost').innerText = fmtCurr(c6_cost);
-
-      const c7_qty = parseFloat(document.getElementById('c7_qty').value) || 0;
-      const c7_cost = 0.10 * c7_qty;
-      document.getElementById('c7_cost').innerText = fmtCurr(c7_cost);
-
-      const c8_rate = parseFloat(document.getElementById('c8_rate').value) || 0;
-      const c8_qty = parseFloat(document.getElementById('c8_qty').value) || 0;
-      const c8_cost = c8_rate * c8_qty * volM;
-      document.getElementById('c8_basis').innerText = fmtNum(volM, 5);
-      document.getElementById('c8_cost').innerText = fmtCurr(c8_cost);
-
-      const totalCncCost = c1_cost + c2_cost + c3_cost + c4_cost + c5_cost + c6_cost + c7_cost + c8_cost;
-      document.getElementById('totalCncCost').innerText = fmtCurr(totalCncCost);
-      document.getElementById('cardCncCost').innerText = fmtCurr(totalCncCost);
-
-      // 6. Grand Total
-      const grandTotal = totalThicknessCost + totalVeneerCost + totalCncCost;
-      document.getElementById('cardGrandTotal').innerText = fmtCurr(grandTotal);
+      } catch (e) {
+        console.error("Calculate RPC call failed:", e);
+      }
     }
 
-    function resetDefaults() {
-      document.querySelectorAll('input').forEach(input => {
-        input.value = '';
+    // ==========================================
+    // 5. UPDATE DASHBOARD & RESULTS UI
+    // ==========================================
+    function updateUI(data) {
+      if (!data) return;
+
+      const c = data.costs || {};
+      const d = data.dimensions || {};
+      const r = data.applied_rates || {};
+
+      // Dimensions
+      document.getElementById('dimPerimeterM').innerText = `${fmtNum(d.perimeter_m, 4)} m`;
+      document.getElementById('dimPerimeterMm').innerText = `(${fmtNum(d.perimeter_mm, 2)} mm)`;
+      document.getElementById('dimVolumeM3').innerText = `${fmtNum(d.volume_m3, 6)} m³`;
+      document.getElementById('dimVolumeMm3').innerText = `(${fmtNum(d.volume_mm3, 2)} mm³)`;
+
+      // Step & Labour Breakdown Rows
+      const tStep = c.thickness_step_cost || 0;
+      const tLab = c.thickness_labour_cost || 0;
+      document.getElementById('costThicknessStep').innerText = fmtCurr(tStep);
+      document.getElementById('costThicknessLabour').innerText = fmtCurr(tLab);
+      document.getElementById('costThicknessTotal').innerText = fmtCurr(tStep + tLab);
+
+      const vStep = c.veneer_step_cost || 0;
+      const vLab = c.veneer_labour_cost || 0;
+      document.getElementById('costVeneerStep').innerText = fmtCurr(vStep);
+      document.getElementById('costVeneerLabour').innerText = fmtCurr(vLab);
+      document.getElementById('costVeneerTotal').innerText = fmtCurr(vStep + vLab);
+
+      const cStep = c.cnc_router_step_cost || 0;
+      const cLab = c.cnc_router_labour_cost || 0;
+      document.getElementById('costCncStep').innerText = fmtCurr(cStep);
+      document.getElementById('costCncLabour').innerText = fmtCurr(cLab);
+      document.getElementById('costCncTotal').innerText = fmtCurr(cStep + cLab);
+
+      // Grand Totals Card
+      const totalSteps = tStep + vStep + cStep;
+      const totalLabour = tLab + vLab + cLab;
+      document.getElementById('cardGrandTotal').innerText = fmtCurr(c.total_cost || 0);
+      document.getElementById('cardTotalStepsCost').innerText = fmtCurr(totalSteps);
+      document.getElementById('cardTotalLabourCost').innerText = fmtCurr(totalLabour);
+
+      // Render Active Applied Rates list
+      renderAppliedRatesLog(r);
+    }
+
+    function renderAppliedRatesLog(rates) {
+      const list = document.getElementById('appliedRatesList');
+      const items = [];
+
+      (rates.normal_rates || []).forEach(n => {
+        items.push(`
+          <li class="py-2.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 truncate">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                ${n.cost_type}
+              </span>
+              <span class="text-slate-800 font-medium truncate">${n.item}</span>
+            </div>
+            <span class="font-bold text-slate-900 whitespace-nowrap text-xs sm:text-sm">
+              ${fmtCurr(n.rate)} <span class="text-slate-400 font-normal text-xs">/ ${n.basis}</span>
+            </span>
+          </li>
+        `);
       });
-      document.getElementById('cncSolidMaterial').value = 'No';
-      calculateAll();
+
+      (rates.thickness_rates || []).forEach(t => {
+        items.push(`
+          <li class="py-2.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 truncate">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Profile
+              </span>
+              <span class="text-slate-800 font-medium truncate">${t.item} <span class="text-slate-500 font-normal text-xs">(${t.thickness_mm || 'vol'}mm)</span></span>
+            </div>
+            <span class="font-bold text-slate-900 whitespace-nowrap text-xs sm:text-sm">
+              ${fmtCurr(t.rate)} <span class="text-slate-400 font-normal text-xs">/ ${t.basis}</span>
+            </span>
+          </li>
+        `);
+      });
+
+      (rates.labour_cost || []).forEach(l => {
+        items.push(`
+          <li class="py-2.5 flex items-center justify-between gap-3 bg-emerald-50/40 px-2 rounded-lg my-1">
+            <div class="flex items-center gap-2 truncate">
+              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+                Labour
+              </span>
+              <span class="text-emerald-950 font-semibold truncate">${l.service_name}</span>
+            </div>
+            <span class="font-bold text-emerald-700 whitespace-nowrap text-xs sm:text-sm">
+              ${fmtCurr(l.total_cost)} <span class="text-emerald-600/70 font-normal text-[11px]">(${fmtCurr(l.unit_cost)} × perim)</span>
+            </span>
+          </li>
+        `);
+      });
+
+      if (items.length === 0) {
+        list.innerHTML = `<li class="py-4 text-slate-400 text-center italic">No rates currently selected</li>`;
+      } else {
+        list.innerHTML = items.join('');
+      }
     }
 
-    // Run initial calculation
-    calculateAll();
+    function clearResults() {
+      document.getElementById('cardGrandTotal').innerText = 'RM 0.00';
+      document.getElementById('cardTotalStepsCost').innerText = 'RM 0.00';
+      document.getElementById('cardTotalLabourCost').innerText = 'RM 0.00';
+
+      document.getElementById('dimPerimeterM').innerText = '0.00 m';
+      document.getElementById('dimPerimeterMm').innerText = '(0 mm)';
+      document.getElementById('dimVolumeM3').innerText = '0.0000 m³';
+      document.getElementById('dimVolumeMm3').innerText = '(0 mm³)';
+
+      document.getElementById('costThicknessStep').innerText = 'RM 0.00';
+      document.getElementById('costThicknessLabour').innerText = 'RM 0.00';
+      document.getElementById('costThicknessTotal').innerText = 'RM 0.00';
+
+      document.getElementById('costVeneerStep').innerText = 'RM 0.00';
+      document.getElementById('costVeneerLabour').innerText = 'RM 0.00';
+      document.getElementById('costVeneerTotal').innerText = 'RM 0.00';
+
+      document.getElementById('costCncStep').innerText = 'RM 0.00';
+      document.getElementById('costCncLabour').innerText = 'RM 0.00';
+      document.getElementById('costCncTotal').innerText = 'RM 0.00';
+
+      document.getElementById('appliedRatesList').innerHTML = `<li class="py-2 text-slate-400 text-center">No rates currently applied</li>`;
+    }
+
+    function resetCalculator() {
+      document.getElementById('inputLength').value = '';
+      document.getElementById('inputWidth').value = '';
+      document.getElementById('inputHeight').value = '';
+      document.getElementById('inputThickness').value = '';
+      document.getElementById('inputThicknessWidth').value = '';
+      document.getElementById('previewTotalThickness').innerText = '0 mm';
+      document.getElementById('previewTotalThickness').className = 'text-sm font-bold text-slate-400';
+
+      document.getElementById('stepThickness').checked = false;
+      document.getElementById('stepVeneer').checked = false;
+      document.getElementById('stepCnc').checked = false;
+
+      document.querySelectorAll('input.labour, input.item_norm, input.item_thick').forEach(el => el.checked = false);
+      lastErrorDisplayed = null;
+      closeErrorModal();
+      clearResults();
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', loadOptionsFromDatabase);
   </script>
 </body>
 </html>
