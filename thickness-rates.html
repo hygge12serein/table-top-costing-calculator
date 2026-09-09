@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thickness Rates Management</title>
+  <title>CNC Router Rates Management</title>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Tailwind CSS CDN -->
@@ -20,16 +20,16 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
 
-  <!-- Header (Matching calculator.html & normal-rates.html) -->
+  <!-- Header -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
+        <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
           <i data-lucide="layers" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Thickness Rates Configuration</h1>
-          <p class="text-xs text-slate-500">Configure Flat and Profile Rates Based on Material Thickness (mm)</p>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">CNC Router Rates Configuration</h1>
+          <p class="text-xs text-slate-500">Configure Flat and Volume Rates Based on Material Thickness (mm)</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -37,7 +37,7 @@
           <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting DB...
         </span>
         <a href="config-index.html" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition">
-          <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i> Back to Config Hub
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-blue-600"></i> Back to Config Hub
         </a>
       </div>
     </div>
@@ -49,20 +49,12 @@
     <!-- Top Summary & Metric Stats -->
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <span class="text-xs font-semibold text-slate-500 block">Total Profiles</span>
-        <span class="text-2xl font-bold text-slate-900" id="statTotalCount">0</span>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-500 block">Active Items</span>
-        <span class="text-2xl font-bold text-emerald-700" id="statActiveCount">0</span>
+        <span class="text-2xl font-bold text-blue-700" id="statActiveCount">0</span>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-500 block">Unique Thicknesses</span>
         <span class="text-2xl font-bold text-indigo-700" id="statThicknessCount">0</span>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <span class="text-xs font-semibold text-slate-500 block">Avg Profile Rate</span>
-        <span class="text-2xl font-bold text-amber-700" id="statAvgProfileRate">RM 0.00</span>
       </div>
     </div>
 
@@ -75,17 +67,17 @@
           <div class="relative flex-1 min-w-[200px]">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
             <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search item name or thickness..." 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-medium">
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium">
           </div>
-          <select id="filterStatus" onchange="handleSearch()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <select id="filterStatus" onchange="handleSearch()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="">All Statuses</option>
             <option value="1">Active Only</option>
             <option value="0">Inactive Only</option>
           </select>
         </div>
 
-        <button onclick="openModal()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
-          <i data-lucide="plus" class="w-4 h-4"></i> Add Thickness Rate
+        <button onclick="openModal()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Rate
         </button>
       </div>
 
@@ -97,8 +89,8 @@
               <th onclick="handleSort('seq')" class="p-3.5 text-center cursor-pointer hover:bg-slate-100 transition">Seq <span id="sort-seq"></span></th>
               <th onclick="handleSort('thickness_mm')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Thickness (mm) <span id="sort-thickness_mm"></span></th>
               <th onclick="handleSort('item')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Item Name <span id="sort-item"></span></th>
-              <th onclick="handleSort('flat_rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">Flat Rate (RM) <span id="sort-flat_rate"></span></th>
-              <th onclick="handleSort('profile_rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">Profile Rate (RM) <span id="sort-profile_rate"></span></th>
+              <th onclick="handleSort('flat_rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">meter Rate (RM) <span id="sort-flat_rate"></span></th>
+              <th onclick="handleSort('profile_rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">m³ Rate (RM) <span id="sort-profile_rate"></span></th>
               <th onclick="handleSort('is_active')" class="p-3.5 text-center cursor-pointer hover:bg-slate-100 transition">Status <span id="sort-is_active"></span></th>
               <th onclick="handleSort('updated_at')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Last Updated <span id="sort-updated_at"></span></th>
               <th class="p-3.5 text-center">Action</th>
@@ -106,7 +98,7 @@
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100 font-medium">
             <tr>
-              <td colspan="8" class="p-8 text-center text-slate-400">Loading thickness rates from database...</td>
+              <td colspan="8" class="p-8 text-center text-slate-400">Loading CNC router rates from database...</td>
             </tr>
           </tbody>
         </table>
@@ -132,19 +124,17 @@
     </div>
   </footer>
 
-  <!-- ========================================== -->
-  <!-- MODAL: Create & Edit Thickness Rate        -->
-  <!-- ========================================== -->
+  <!-- MODAL: Create & Edit Thickness Rate -->
   <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4 transition-opacity">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transform transition-all">
       <div class="p-6">
         <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
-          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
             <i data-lucide="edit-3" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900" id="modalTitle">Edit Thickness Rate</h3>
-            <p class="text-xs text-slate-500">Set thickness thresholds, flat rates, and profile rates</p>
+            <h3 class="text-base font-bold text-slate-900" id="modalTitle">Edit CNC Router Rate</h3>
+            <p class="text-xs text-slate-500">Set CNC router thresholds, meter rates, and m³ rates</p>
           </div>
         </div>
 
@@ -154,37 +144,37 @@
             <div>
               <label class="block font-semibold text-slate-700 mb-1">Thickness (mm)</label>
               <input type="number" id="thickMm" placeholder="e.g. 34" 
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
               <label class="block font-semibold text-slate-700 mb-1">Sequence (Seq)</label>
               <input type="number" id="thickSeq" placeholder="1, 2, 3..." 
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
           </div>
 
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Item Name</label>
             <input type="text" id="thickItem" placeholder="e.g. 加厚 or MDF 刀型" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Flat Rate (RM)</label>
+              <label class="block font-semibold text-slate-700 mb-1">meter Rate (RM)</label>
               <input type="number" step="0.01" id="thickFlatRate" placeholder="0.00" 
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">Profile Rate (RM)</label>
+              <label class="block font-semibold text-slate-700 mb-1">m³ Rate (RM)</label>
               <input type="number" step="0.01" id="thickProfileRate" placeholder="0.00" 
-                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
           </div>
 
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Status</label>
-            <select id="thickActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <select id="thickActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="1">Active</option>
               <option value="0">Inactive</option>
             </select>
@@ -197,7 +187,7 @@
         <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition">
           Cancel
         </button>
-        <button type="button" onclick="saveData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+        <button type="button" onclick="saveData()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
           Save Changes
         </button>
       </div>
@@ -227,8 +217,8 @@
         updateSummaryStats();
         applyFilters();
 
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-500"></span> Connected`;
       } catch (err) {
         console.error("Load failed:", err);
         badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
@@ -237,15 +227,10 @@
     }
 
     function updateSummaryStats() {
-      document.getElementById('statTotalCount').innerText = rawData.length;
       document.getElementById('statActiveCount').innerText = rawData.filter(r => r.is_active === 1).length;
       
       const uniqueThicknesses = new Set(rawData.map(r => r.thickness_mm).filter(t => t != null));
       document.getElementById('statThicknessCount').innerText = uniqueThicknesses.size;
-
-      const profileRates = rawData.map(r => parseFloat(r.profile_rate) || 0);
-      const avgProfile = profileRates.length > 0 ? (profileRates.reduce((a, b) => a + b, 0) / profileRates.length) : 0;
-      document.getElementById('statAvgProfileRate').innerText = fmtCurr(avgProfile);
     }
 
     function applyFilters() {
@@ -293,16 +278,16 @@
             </td>
             <td class="p-3.5 font-semibold text-slate-900">${row.item}</td>
             <td class="p-3.5 text-right font-mono font-bold text-slate-900 text-sm">${fmtCurr(row.flat_rate)}</td>
-            <td class="p-3.5 text-right font-mono font-bold text-emerald-700 text-sm">${fmtCurr(row.profile_rate)}</td>
+            <td class="p-3.5 text-right font-mono font-bold text-blue-700 text-sm">${fmtCurr(row.profile_rate)}</td>
             <td class="p-3.5 text-center">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
-                <span class="w-1.5 h-1.5 rounded-full ${row.is_active ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.is_active ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                <span class="w-1.5 h-1.5 rounded-full ${row.is_active ? 'bg-blue-500' : 'bg-slate-400'}"></span>
                 ${row.is_active ? 'Active' : 'Inactive'}
               </span>
             </td>
             <td class="p-3.5 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleDateString()} ${new Date(row.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
             <td class="p-3.5 text-center">
-              <button onclick="openModal('${row.guid}')" class="text-xs font-semibold px-2.5 py-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition">
+              <button onclick="openModal('${row.guid}')" class="text-xs font-semibold px-2.5 py-1 text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-md transition">
                 Edit
               </button>
             </td>
@@ -335,7 +320,7 @@
       document.getElementById('modal').classList.add('flex');
       if (guid) {
         const item = rawData.find(r => r.guid === guid);
-        document.getElementById('modalTitle').innerText = 'Edit Thickness Rate';
+        document.getElementById('modalTitle').innerText = 'Edit CNC Router Rate';
         document.getElementById('thickGuid').value = item.guid;
         document.getElementById('thickMm').value = item.thickness_mm;
         document.getElementById('thickSeq').value = item.seq;
@@ -344,7 +329,7 @@
         document.getElementById('thickProfileRate').value = item.profile_rate;
         document.getElementById('thickActive').value = item.is_active;
       } else {
-        document.getElementById('modalTitle').innerText = 'Add New Thickness Rate';
+        document.getElementById('modalTitle').innerText = 'Add New CNC Router Rate';
         document.getElementById('thickGuid').value = '';
         document.getElementById('thickMm').value = '';
         document.getElementById('thickSeq').value = rawData.length + 1;
@@ -360,7 +345,6 @@
       document.getElementById('modal').classList.remove('flex');
     }
 
-    // Backdrop click close
     document.getElementById('modal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
@@ -391,7 +375,6 @@
       else { closeModal(); loadData(); }
     }
 
-    // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       loadData();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Normal Rates Management</title>
+  <title>Material Fixed Rates Management</title>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Tailwind CSS CDN -->
@@ -24,12 +24,12 @@
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
+        <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
           <i data-lucide="sliders" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Normal Rates Configuration</h1>
-          <p class="text-xs text-slate-500">Manage Thickness, Veneer & CNC Standard Unit Rates</p>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">Material Fixed Rates Configuration</h1>
+          <p class="text-xs text-slate-500">Manage Thickness, Veneer & CNC Router Standard Unit Rates</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -54,14 +54,14 @@
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-500 block">Thickness Rates</span>
-        <span class="text-2xl font-bold text-emerald-700" id="statThicknessCount">0</span>
+        <span class="text-2xl font-bold text-blue-700" id="statThicknessCount">0</span>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <span class="text-xs font-semibold text-slate-500 block">Veneer Rates</span>
         <span class="text-2xl font-bold text-indigo-700" id="statVeneerCount">0</span>
       </div>
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <span class="text-xs font-semibold text-slate-500 block">CNC Normal Rates</span>
+        <span class="text-xs font-semibold text-slate-500 block">CNC Router Rates</span>
         <span class="text-2xl font-bold text-amber-700" id="statCncCount">0</span>
       </div>
     </div>
@@ -74,10 +74,10 @@
         <div class="flex flex-wrap items-center gap-3 max-w-lg w-full">
           <div class="relative flex-1 min-w-[200px]">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-            <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search item or cost type..." 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-medium">
+            <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search item or material type..." 
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium">
           </div>
-          <select id="filterCostType" onchange="handleSearch()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <select id="filterCostType" onchange="handleSearch()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             <option value="">All Types</option>
             <option value="thickness">Thickness</option>
             <option value="veneer">Veneer</option>
@@ -85,7 +85,7 @@
           </select>
         </div>
 
-        <button onclick="openModal()" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+        <button onclick="openModal()" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
           <i data-lucide="plus" class="w-4 h-4"></i> Add New Rate
         </button>
       </div>
@@ -95,7 +95,7 @@
         <table class="w-full text-left text-xs whitespace-nowrap">
           <thead class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
             <tr>
-              <th onclick="handleSort('cost_type')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Cost Type <span id="sort-cost_type"></span></th>
+              <th onclick="handleSort('cost_type')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Material Type <span id="sort-cost_type"></span></th>
               <th onclick="handleSort('item')" class="p-3.5 cursor-pointer hover:bg-slate-100 transition">Item Name <span id="sort-item"></span></th>
               <th onclick="handleSort('rate')" class="p-3.5 text-right cursor-pointer hover:bg-slate-100 transition">Unit Rate (RM) <span id="sort-rate"></span></th>
               <th onclick="handleSort('is_per_qty')" class="p-3.5 text-center cursor-pointer hover:bg-slate-100 transition">Qty Based <span id="sort-is_per_qty"></span></th>
@@ -106,7 +106,7 @@
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100 font-medium">
             <tr>
-              <td colspan="7" class="p-8 text-center text-slate-400">Loading normal rates from database...</td>
+              <td colspan="7" class="p-8 text-center text-slate-400">Loading material fixed rates from database...</td>
             </tr>
           </tbody>
         </table>
@@ -139,11 +139,11 @@
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transform transition-all">
       <div class="p-6">
         <div class="flex items-center gap-3 pb-4 mb-4 border-b border-slate-100">
-          <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+          <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
             <i data-lucide="edit-3" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900" id="modalTitle">Edit Normal Rate</h3>
+            <h3 class="text-base font-bold text-slate-900" id="modalTitle">Edit Material Fixed Rate</h3>
             <p class="text-xs text-slate-500">Configure standard costs and calculation behavior</p>
           </div>
         </div>
@@ -151,8 +151,8 @@
         <input type="hidden" id="normGuid">
         <div class="space-y-4 text-xs">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">Cost Type</label>
-            <select id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none capitalize">
+            <label class="block font-semibold text-slate-700 mb-1">Material Type</label>
+            <select id="normCostType" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none capitalize">
               <option value="thickness">Thickness</option>
               <option value="veneer">Veneer</option>
               <option value="cnc">CNC</option>
@@ -161,17 +161,17 @@
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Item Name</label>
             <input type="text" id="normItem" placeholder="e.g. 加厚1层, 钻洞, or 中间加骨" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Unit Rate (RM)</label>
             <input type="number" step="0.01" id="normRate" placeholder="0.00" 
-              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none">
           </div>
           <!-- Quantity Based (is_per_qty) Select Field -->
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Quantity Based</label>
-            <select id="normIsPerQty" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <select id="normIsPerQty" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
@@ -179,7 +179,7 @@
           </div>
           <div>
             <label class="block font-semibold text-slate-700 mb-1">Status</label>
-            <select id="normActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <select id="normActive" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-800 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
               <option value="1">Active</option>
               <option value="0">Inactive</option>
             </select>
@@ -192,7 +192,7 @@
         <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold text-slate-700 transition">
           Cancel
         </button>
-        <button type="button" onclick="saveData()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+        <button type="button" onclick="saveData()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
           Save Changes
         </button>
       </div>
@@ -222,8 +222,8 @@
         updateSummaryStats();
         applyFilters();
 
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
+        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-500"></span> Connected`;
       } catch (err) {
         console.error("Load failed:", err);
         badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
@@ -271,7 +271,7 @@
         : pageRows.map(row => {
           const type = (row.cost_type || '').toLowerCase();
           let badgeClass = "bg-slate-100 text-slate-700 border-slate-200";
-          if (type === 'thickness') badgeClass = "bg-emerald-50 text-emerald-800 border-emerald-200";
+          if (type === 'thickness') badgeClass = "bg-blue-50 text-blue-800 border-blue-200";
           else if (type === 'veneer') badgeClass = "bg-indigo-50 text-indigo-800 border-indigo-200";
           else if (type === 'cnc') badgeClass = "bg-amber-50 text-amber-800 border-amber-200";
 
@@ -290,14 +290,14 @@
                 </span>
               </td>
               <td class="p-3.5 text-center">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
-                  <span class="w-1.5 h-1.5 rounded-full ${row.is_active ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${row.is_active ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-500 border border-slate-200'}">
+                  <span class="w-1.5 h-1.5 rounded-full ${row.is_active ? 'bg-blue-500' : 'bg-slate-400'}"></span>
                   ${row.is_active ? 'Active' : 'Inactive'}
                 </span>
               </td>
               <td class="p-3.5 text-slate-400 text-xs">${new Date(row.updated_at).toLocaleDateString()} ${new Date(row.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
               <td class="p-3.5 text-center">
-                <button onclick="openModal('${row.guid}')" class="text-xs font-semibold px-2.5 py-1 text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition">
+                <button onclick="openModal('${row.guid}')" class="text-xs font-semibold px-2.5 py-1 text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-md transition">
                   Edit
                 </button>
               </td>
@@ -331,7 +331,7 @@
       document.getElementById('modal').classList.add('flex');
       if (guid) {
         const item = rawData.find(r => r.guid === guid);
-        document.getElementById('modalTitle').innerText = 'Edit Normal Rate';
+        document.getElementById('modalTitle').innerText = 'Edit Material Fixed Rate';
         document.getElementById('normGuid').value = item.guid;
         document.getElementById('normCostType').value = (item.cost_type || 'thickness').toLowerCase();
         document.getElementById('normItem').value = item.item;
@@ -339,7 +339,7 @@
         document.getElementById('normIsPerQty').value = item.is_per_qty ? '1' : '0';
         document.getElementById('normActive').value = item.is_active;
       } else {
-        document.getElementById('modalTitle').innerText = 'Add New Normal Rate';
+        document.getElementById('modalTitle').innerText = 'Add New Material Fixed Rate';
         document.getElementById('normGuid').value = '';
         document.getElementById('normCostType').value = 'thickness';
         document.getElementById('normItem').value = '';

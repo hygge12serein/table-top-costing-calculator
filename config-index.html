@@ -22,16 +22,16 @@
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
+        <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
           <i data-lucide="settings" class="w-6 h-6"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Configuration Hub</h1>
-          <p class="text-xs text-slate-500">Fabrication Rates, Profiles & Operational Cost Settings</p>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">Config Hub</h1>
+          <p class="text-xs text-slate-500">Material & Service Cost Settings</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <a href="index.html" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+        <a href="index.html" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
           <i data-lucide="calculator" class="w-4 h-4"></i> Open Calculator
         </a>
       </div>
@@ -47,12 +47,12 @@
         <i data-lucide="database" class="w-48 h-48"></i>
       </div>
       <div class="max-w-2xl space-y-2 relative z-10">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Supabase Connected
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Supabase Connected
         </span>
         <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">System Rate Modules</h2>
         <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          Manage pricing rules, step unit charges, thickness-dependent CNC profiles, and service labour fees. All changes automatically update the live calculator in real time.
+          Manage pricing rules, step unit charges, thickness-dependent CNC router, and service labour fees. All changes automatically update the live calculator in real time.
         </p>
       </div>
     </div>
@@ -62,22 +62,22 @@
 
       <!-- CARD 1: NORMAL RATES -->
       <a href="normal-rates.html" 
-        class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all flex flex-col justify-between">
+         class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-emerald-50 group-hover:text-emerald-700 flex items-center justify-center transition-colors">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-blue-50 group-hover:text-blue-700 flex items-center justify-center transition-colors">
             <i data-lucide="sliders" class="w-6 h-6"></i>
           </div>
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">Normal Rates</h3>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600">Step Rates</span>
+              <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Material Rates</h3>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600">Fixed Rates</span>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
-              Standard unit rates per meter or volume for Thickness, Veneer, and CNC router steps (e.g. 加厚1层, 直边1层, 钻洞).
+              Standard unit rates per meter or volume for Thickness, Veneer, and CNC router material (e.g. 加厚1层, 直边1层, 钻洞).
             </p>
           </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:text-blue-700">
           <span>Manage Normal Rates</span>
           <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform"></i>
         </div>
@@ -85,46 +85,46 @@
 
       <!-- CARD 2: THICKNESS RATES -->
       <a href="thickness-rates.html" 
-        class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all flex flex-col justify-between">
+         class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-emerald-50 group-hover:text-emerald-700 flex items-center justify-center transition-colors">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-blue-50 group-hover:text-blue-700 flex items-center justify-center transition-colors">
             <i data-lucide="layers" class="w-6 h-6"></i>
           </div>
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">Thickness Rates</h3>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">Profiles</span>
+              <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">CNC Router Rates</h3>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">Spec. Based Rates</span>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
-              Flat rates and profile rates mapped by specific millimeter thickness thresholds (e.g. 34mm 加厚, MDF 刀型).
+              meter rates and m³ rates mapped by specific millimeter thickness thresholds.
             </p>
           </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
-          <span>Manage Thickness Rates</span>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:text-blue-700">
+          <span>Manage CNC Router Rates</span>
           <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform"></i>
         </div>
       </a>
 
       <!-- CARD 3: LABOUR COST -->
       <a href="labour-cost.html" 
-        class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all flex flex-col justify-between">
+         class="group bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-blue-500 transition-all flex flex-col justify-between">
         <div class="space-y-4">
-          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-emerald-50 group-hover:text-emerald-700 flex items-center justify-center transition-colors">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 group-hover:bg-blue-50 group-hover:text-blue-700 flex items-center justify-center transition-colors">
             <i data-lucide="wrench" class="w-6 h-6"></i>
           </div>
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">Labour Cost</h3>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">Labour</span>
+              <h3 class="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">Service Cost</h3>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100">Fixed Costs</span>
             </div>
             <p class="text-xs text-slate-500 leading-relaxed">
-              Operational service fees calculated against perimeter length (e.g. Apron, Backer, Veneer finishing labour).
+              Operational service fees calculated against perimeter length (e.g. Apron, Backer, Veneer).
             </p>
           </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:text-emerald-700">
-          <span>Manage Labour Costs</span>
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600 group-hover:text-blue-700">
+          <span>Manage Service Costs</span>
           <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1.5 transition-transform"></i>
         </div>
       </a>
