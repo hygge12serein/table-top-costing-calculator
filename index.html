@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Smart Costing Calculator</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -10,121 +10,138 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     /* Custom scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans relative">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans relative selection:bg-blue-500 selection:text-white">
 
   <!-- Header -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="bg-emerald-600 text-white p-2 rounded-lg shadow-sm">
-          <i data-lucide="calculator" class="w-6 h-6"></i>
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="bg-blue-600 text-white p-2 rounded-xl shadow-sm flex-shrink-0">
+          <i data-lucide="calculator" class="w-5 h-5 sm:w-6 sm:h-6"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">Fabrication Costing Calculator</h1>
-          <p class="text-xs text-slate-500">Thickness, Veneer & CNC Router Real-time Estimator</p>
+          <h1 class="text-sm sm:text-base md:text-lg font-bold text-slate-900 leading-tight">Table TopCosting Calculator</h1>
         </div>
       </div>
-      <div class="flex items-center gap-2 sm:gap-3">
-        <span id="apiStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Connecting API...
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <span id="apiStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> <span class="hidden xs:inline">API</span>
         </span>
         <!-- Config Index Navigation Button -->
-        <a href="config-index.html" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition font-semibold">
+        <a href="config-index.html" class="text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 flex items-center gap-1 transition font-medium">
           <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-500"></i>
-          <span>Config</span>
+          <span class="hidden sm:inline">Config</span>
         </a>
         <!-- Reset Button -->
-        <button onclick="resetCalculator()" class="text-xs px-3 py-1.5 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 transition">
+        <button onclick="resetCalculator()" class="text-xs px-2.5 py-1.5 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1 transition">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-          <span>Clear All</span>
+          <span class="hidden sm:inline">Clear</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
 
     <!-- Left Column: Inputs & Multi-Selections (7 Cols) -->
-    <div class="lg:col-span-7 space-y-6">
+    <div class="lg:col-span-7 space-y-4 sm:space-y-6">
 
       <!-- 1. Geometry Dimensions Card -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <div class="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
-          <i data-lucide="box" class="w-5 h-5 text-emerald-600"></i>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">1. Dimension Inputs (mm)</h2>
+      <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <i data-lucide="box" class="w-4 h-4 text-blue-600"></i>
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800">1. Dimensions & Thickness</h2>
+          </div>
+          <span class="text-[10px] text-slate-400">All in mm</span>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+        <!-- NEW: Total Thickness Selector Dropdown (From Database) -->
+        <div class="mb-4 p-3 bg-blue-50/60 rounded-xl border border-blue-100">
+          <label class="flex items-center justify-between text-xs font-bold text-blue-950 mb-1.5">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-600"></i>
+              Preset Total Thickness (Height + Thickness)
+            </span>
+          </label>
+          <select id="selectConfiguredThickness" onchange="handleThicknessPresetChange(this.value)"
+            class="w-full bg-white border border-blue-200 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+            <option value="">-- Choose or enter manually below --</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Length (mm)</label>
-            <input type="number" id="inputLength" placeholder="e.g. 1200" step="any" oninput="triggerCalculate()"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+            <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Length (mm)</label>
+            <input type="number" id="inputLength" placeholder="1500" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs sm:text-sm font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Width (mm)</label>
-            <input type="number" id="inputWidth" placeholder="e.g. 600" step="any" oninput="triggerCalculate()"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+            <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Width (mm)</label>
+            <input type="number" id="inputWidth" placeholder="900" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs sm:text-sm font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Height (mm)</label>
-            <input type="number" id="inputHeight" placeholder="e.g. 18" step="any" oninput="triggerCalculate()"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+            <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Height (mm)</label>
+            <input type="number" id="inputHeight" placeholder="17" step="any" oninput="syncManualThicknessChange()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs sm:text-sm font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Thickness (mm)</label>
-            <input type="number" id="inputThickness" placeholder="e.g. 16" step="any" oninput="triggerCalculate()"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+            <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Thickness (mm)</label>
+            <input type="number" id="inputThickness" placeholder="17" step="any" oninput="syncManualThicknessChange()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs sm:text-sm font-semibold">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Thickness Width (mm)</label>
-            <input type="number" id="inputThicknessWidth" placeholder="e.g. 25" step="any" oninput="triggerCalculate()"
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none text-sm font-semibold">
+            <label class="block text-[11px] sm:text-xs font-semibold text-slate-600 mb-1">Thick Width (mm)</label>
+            <input type="number" id="inputThicknessWidth" placeholder="60" step="any" oninput="triggerCalculate()"
+              class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-xs sm:text-sm font-semibold">
           </div>
-          <div class="flex flex-col justify-end">
-            <span class="text-[11px] text-slate-500">Total Thickness:</span>
-            <span id="previewTotalThickness" class="text-sm font-bold text-slate-400">0 mm</span>
+          <div class="flex flex-col justify-end p-2 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="text-[10px] text-slate-500">Total Thickness:</span>
+            <span id="previewTotalThickness" class="text-xs sm:text-sm font-bold text-slate-400">0 mm</span>
           </div>
         </div>
 
         <!-- Step Toggles -->
-        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4">
-          <span class="text-xs font-bold text-slate-700">Steps Involved:</span>
-          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
-            <input type="checkbox" id="stepThickness" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-3 sm:gap-5">
+          <span class="text-[11px] sm:text-xs font-bold text-slate-700">Steps Involved:</span>
+          <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepThickness" onchange="handleStepToggle()" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4">
             Thickness
           </label>
-          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
-            <input type="checkbox" id="stepVeneer" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+          <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepVeneer" onchange="handleStepToggle()" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4">
             Veneer
           </label>
-          <label class="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
-            <input type="checkbox" id="stepCnc" onchange="triggerCalculate()" class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4">
+          <label class="inline-flex items-center gap-1.5 text-xs font-medium cursor-pointer">
+            <input type="checkbox" id="stepCnc" onchange="handleStepToggle()" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4">
             CNC Router
           </label>
         </div>
       </section>
 
       <!-- 2. Dynamic Rate & Labour Multi-Selection Sections -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-5">
+      <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 space-y-5">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
           <div class="flex items-center gap-2">
-            <i data-lucide="layers" class="w-5 h-5 text-emerald-600"></i>
-            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-800">2. Rate & Labour Multi-Select Fields</h2>
+            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-blue-600"></i>
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800">2. Rate & Labour Multi-Select</h2>
           </div>
         </div>
 
         <!-- Field A: Thickness Normal Rates -->
         <div>
           <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-            <span>Thickness Step Costs (Normal Rates)</span>
+            <span>Thickness Step Costs</span>
           </label>
-          <div id="containerThicknessNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div id="containerThicknessNormal" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
@@ -134,7 +151,7 @@
           <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
             <span>Thickness Labour Services</span>
           </label>
-          <div id="containerThicknessLabour" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div id="containerThicknessLabour" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
@@ -144,9 +161,9 @@
         <!-- Field C: Veneer Normal Rates -->
         <div>
           <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-            <span>Veneer Step Costs (Normal Rates)</span>
+            <span>Veneer Step Costs</span>
           </label>
-          <div id="containerVeneerNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div id="containerVeneerNormal" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
@@ -156,7 +173,7 @@
           <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
             <span>Veneer Labour Services</span>
           </label>
-          <div id="containerVeneerLabour" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div id="containerVeneerLabour" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
@@ -165,20 +182,11 @@
 
         <!-- Field E: CNC Thickness Profiles -->
         <div>
-          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-            <span>CNC Thickness Profiles (Thickness Rates)</span>
-          </label>
-          <div id="containerCncThickness" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            <div class="text-xs text-slate-400 py-2">Loading options...</div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-700">CNC Rates</label>
           </div>
-        </div>
-
-        <!-- Field F: CNC Normal Rates -->
-        <div>
-          <label class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-            <span>CNC Normal Rates (Add-ons)</span>
-          </label>
-          <div id="containerCncNormal" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- Single unified container -->
+          <div id="containerCncRates" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
             <div class="text-xs text-slate-400 py-2">Loading options...</div>
           </div>
         </div>
@@ -187,131 +195,128 @@
     </div>
 
     <!-- Right Column: Live Results & Summaries (5 Cols) -->
-    <div class="lg:col-span-5 space-y-6">
+    <div class="lg:col-span-5 space-y-4 sm:space-y-6">
 
-      <!-- Grand Total Card -->
-      <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl shadow-md p-6 relative overflow-hidden">
-        <div class="absolute -right-4 -bottom-4 opacity-10 text-white">
+      <!-- Grand Total Card (Blue Theme) -->
+      <section class="bg-gradient-to-br from-slate-900 via-blue-950 to-blue-900 text-white rounded-2xl shadow-md p-5 sm:p-6 relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 opacity-10 text-white pointer-events-none">
           <i data-lucide="receipt" class="w-32 h-32"></i>
         </div>
-        <div class="text-xs font-bold tracking-widest text-emerald-400 uppercase mb-1">Total Estimated Cost</div>
+        <div class="text-[11px] font-bold tracking-widest text-sky-400 uppercase mb-1">Total Estimated Cost</div>
         <div class="flex items-baseline gap-2">
-          <span class="text-4xl font-extrabold" id="cardGrandTotal">RM 0.00</span>
-          <span class="text-xs text-slate-400">MYR</span>
+          <span class="text-3xl sm:text-4xl font-extrabold" id="cardGrandTotal">RM 0.00</span>
+          <span class="text-xs text-blue-200">MYR</span>
         </div>
-        <div class="mt-4 pt-4 border-t border-slate-700/60 grid grid-cols-2 gap-3 text-xs">
+        <div class="mt-4 pt-4 border-t border-blue-800/60 grid grid-cols-2 gap-3 text-xs">
           <div>
-            <span class="text-slate-400 block">Total Material/Steps:</span>
-            <span class="font-semibold text-slate-200" id="cardTotalStepsCost">RM 0.00</span>
+            <span class="text-blue-200/70 block text-[11px]">Steps Material:</span>
+            <span class="font-semibold text-white text-sm" id="cardTotalStepsCost">RM 0.00</span>
           </div>
           <div>
-            <span class="text-slate-400 block">Total Labour Cost:</span>
-            <span class="font-semibold text-slate-200" id="cardTotalLabourCost">RM 0.00</span>
+            <span class="text-blue-200/70 block text-[11px]">Labour Costs:</span>
+            <span class="font-semibold text-white text-sm" id="cardTotalLabourCost">RM 0.00</span>
           </div>
         </div>
       </section>
 
-      <!-- Step & Labour Breakdown (Enlarged & Enhanced) -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+      <!-- Step & Labour Breakdown -->
+      <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-600"></i> Step & Labour Breakdown
+          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i> Step & Labour Breakdown
           </h3>
+          <span class="text-[10px] text-slate-400">Subtotals</span>
         </div>
 
         <!-- Thickness Cost Row -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
           <div class="space-y-1">
-            <span class="font-bold text-slate-900 text-sm sm:text-base block">Thickness Step</span>
-            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <span class="font-bold text-slate-900 text-xs sm:text-sm block">Thickness Step</span>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-slate-600">
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
                 Step: <strong class="text-slate-800" id="costThicknessStep">RM 0.00</strong>
               </span>
-              <span class="text-slate-300">|</span>
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
-                Labour: <strong class="text-emerald-700" id="costThicknessLabour">RM 0.00</strong>
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-blue-700" id="costThicknessLabour">RM 0.00</strong>
               </span>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
-            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costThicknessTotal">RM 0.00</span>
+            <span class="text-[10px] uppercase text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-sm sm:text-base" id="costThicknessTotal">RM 0.00</span>
           </div>
         </div>
 
         <!-- Veneer Cost Row -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
           <div class="space-y-1">
-            <span class="font-bold text-slate-900 text-sm sm:text-base block">Veneer Edging Step</span>
-            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <span class="font-bold text-slate-900 text-xs sm:text-sm block">Veneer Edging Step</span>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-slate-600">
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
                 Step: <strong class="text-slate-800" id="costVeneerStep">RM 0.00</strong>
               </span>
-              <span class="text-slate-300">|</span>
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
-                Labour: <strong class="text-emerald-700" id="costVeneerLabour">RM 0.00</strong>
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-blue-700" id="costVeneerLabour">RM 0.00</strong>
               </span>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
-            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costVeneerTotal">RM 0.00</span>
+            <span class="text-[10px] uppercase text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-sm sm:text-base" id="costVeneerTotal">RM 0.00</span>
           </div>
         </div>
 
         <!-- CNC Cost Row -->
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-100/80 flex items-center justify-between hover:bg-slate-100/60 transition">
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
           <div class="space-y-1">
-            <span class="font-bold text-slate-900 text-sm sm:text-base block">CNC Router Step</span>
-            <div class="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-slate-600">
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <span class="font-bold text-slate-900 text-xs sm:text-sm block">CNC Router Step</span>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-xs text-slate-600">
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
                 Step: <strong class="text-slate-800" id="costCncStep">RM 0.00</strong>
               </span>
-              <span class="text-slate-300">|</span>
-              <span class="inline-flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-slate-200">
-                Labour: <strong class="text-emerald-700" id="costCncLabour">RM 0.00</strong>
+              <span class="bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                Labour: <strong class="text-blue-700" id="costCncLabour">RM 0.00</strong>
               </span>
             </div>
           </div>
           <div class="text-right">
-            <span class="text-[11px] uppercase tracking-wider text-slate-400 block font-semibold">Subtotal</span>
-            <span class="font-extrabold text-slate-900 text-base sm:text-lg" id="costCncTotal">RM 0.00</span>
+            <span class="text-[10px] uppercase text-slate-400 block font-semibold">Subtotal</span>
+            <span class="font-extrabold text-slate-900 text-sm sm:text-base" id="costCncTotal">RM 0.00</span>
           </div>
         </div>
       </section>
 
       <!-- Dimension Breakdown Card -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-1.5">
-          <i data-lucide="ruler" class="w-4 h-4 text-emerald-600"></i> Calculated Dimensions
+      <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5 flex items-center gap-1.5">
+          <i data-lucide="ruler" class="w-4 h-4 text-blue-600"></i> Calculated Dimensions
         </h3>
-        <div class="grid grid-cols-2 gap-3 text-xs">
-          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <span class="text-slate-500 block">Perimeter</span>
-            <span class="font-bold text-slate-800 text-sm" id="dimPerimeterM">0.00 m</span>
+        <div class="grid grid-cols-2 gap-2.5 text-xs">
+          <div class="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="text-slate-500 block text-[11px]">Perimeter</span>
+            <span class="font-bold text-slate-800 text-xs sm:text-sm" id="dimPerimeterM">0.00 m</span>
             <span class="text-[10px] text-slate-400 block" id="dimPerimeterMm">(0 mm)</span>
           </div>
-          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <span class="text-slate-500 block">Volume</span>
-            <span class="font-bold text-slate-800 text-sm" id="dimVolumeM3">0.0000 m³</span>
+          <div class="p-2.5 sm:p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="text-slate-500 block text-[11px]">Volume</span>
+            <span class="font-bold text-slate-800 text-xs sm:text-sm" id="dimVolumeM3">0.0000 m³</span>
             <span class="text-[10px] text-slate-400 block" id="dimVolumeMm3">(0 mm³)</span>
           </div>
         </div>
       </section>
 
-      <!-- Active Applied Rates (Enlarged & Enhanced) -->
-      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-3">
+      <!-- Active Applied Rates (Blue Accent) -->
+      <section class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 sm:p-5 space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <i data-lucide="tag" class="w-5 h-5 text-emerald-600"></i> Active Applied Rates
+          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <i data-lucide="tag" class="w-4 h-4 text-blue-600"></i> Active Applied Rates
           </h3>
-          <span class="text-xs text-slate-400 font-medium">Applied Rules</span>
+          <span class="text-[10px] text-slate-400 font-medium">Applied Rules</span>
         </div>
 
-        <!-- Increased scrollable height from max-h-48 (192px) to max-h-72 (288px) -->
-        <div class="max-h-72 overflow-y-auto pr-1.5 space-y-2">
-          <ul id="appliedRatesList" class="divide-y divide-slate-100 text-xs sm:text-sm">
-            <li class="py-4 text-slate-400 text-center italic">No rates currently selected</li>
+        <div class="max-h-56 sm:max-h-72 overflow-y-auto pr-1 space-y-1.5">
+          <ul id="appliedRatesList" class="divide-y divide-slate-100 text-xs">
+            <li class="py-3 text-slate-400 text-center italic">No rates currently selected</li>
           </ul>
         </div>
       </section>
@@ -322,24 +327,24 @@
   <!-- ========================================== -->
   <!-- MODAL: Error Notification Dialog           -->
   <!-- ========================================== -->
-  <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4 transition-opacity">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-md w-full overflow-hidden transform transition-all">
-      <div class="p-6">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
-            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+  <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs hidden p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-sm sm:max-w-md w-full overflow-hidden transform transition-all">
+      <div class="p-5 sm:p-6">
+        <div class="flex items-start gap-3.5">
+          <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-bold text-slate-900 leading-6" id="modalTitle">Rate Validation Notice</h3>
-            <p class="text-xs text-slate-600 mt-2 leading-relaxed" id="modalMessage">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900" id="modalTitle">Validation Notice</h3>
+            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed" id="modalMessage">
               An error occurred during calculation.
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-slate-50 px-6 py-3.5 flex justify-end border-t border-slate-100">
+      <div class="bg-slate-50 px-5 sm:px-6 py-3 flex justify-end border-t border-slate-100">
         <button type="button" onclick="closeErrorModal()"
-          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-xs transition">
           Dismiss
         </button>
       </div>
@@ -347,16 +352,9 @@
   </div>
 
   <!-- Footer -->
-  <footer class="mt-12 border-t border-slate-200 bg-white py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+  <footer class="mt-8 border-t border-slate-200 bg-white py-4 sm:py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center text-[11px] sm:text-xs text-slate-500 text-center">
       <p>&copy; 2026 SW做给CH的.</p>
-      <div class="flex items-center gap-4 text-slate-400">
-        <span>PostgreSQL</span>
-        <span>&bull;</span>
-        <span>Supabase RPC</span>
-        <span>&bull;</span>
-        <span>Tailwind CSS</span>
-      </div>
     </div>
   </footer>
 
@@ -366,7 +364,6 @@
     // 1. SUPABASE CONFIGURATION
     // ==========================================
     const SUPABASE_PROJECT_URL = "https://hjdxqocqqkvoeligumfv.supabase.co";
-    // 👉 Replace with your actual anon public key from Supabase Dashboard:
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHhxb2NxcWt2b2VsaWd1bWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3NzUzOTgsImV4cCI6MjEwNDM1MTM5OH0.WORFmgT27jDuUKEX5eG8vB8aJL5tFl0eC01skJnBImo"; 
 
     const OPTIONS_RPC_URL   = `${SUPABASE_PROJECT_URL}/rest/v1/rpc/get_calculator_options`;
@@ -379,11 +376,12 @@
 
     let debounceTimer = null;
     let lastErrorDisplayed = null;
+    let availableThicknessValues = [];
 
     // ==========================================
     // 2. MODAL CONTROLS
     // ==========================================
-    function showErrorModal(message, title = "Rate Validation Notice") {
+    function showErrorModal(message, title = "Validation Notice") {
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalMessage').innerText = message;
       document.getElementById('errorModal').classList.remove('hidden');
@@ -394,16 +392,16 @@
       document.getElementById('errorModal').classList.add('hidden');
     }
 
-    // Close modal when clicking on backdrop
     document.getElementById('errorModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeErrorModal();
-      }
+      if (e.target === this) closeErrorModal();
     });
 
     // ==========================================
-    // 3. FETCH OPTIONS & BUILD DYNAMIC CHECKBOXES
+    // 3. FETCH OPTIONS & BUILD DYNAMIC UI
     // ==========================================
+
+    let rawCncThicknessList = [];
+
     async function loadOptionsFromDatabase() {
       const badge = document.getElementById('apiStatusBadge');
       try {
@@ -420,24 +418,197 @@
 
         const data = await response.json();
         
-        // Populate Multi-Selection Fields dynamically
+        // 1. Store thickness list
+        rawCncThicknessList = data.cnc_thickness_rates || [];
+
+        // 2. Populate the Total Thickness dropdown from thickness_rates
+        populateThicknessPresetDropdown(rawCncThicknessList);
+
+        // 3. Populate Standard Multi-Selection Fields
         renderCheckboxGroup('containerThicknessNormal', data.thickness_normal_rates || [], 'item', 'rate', 'item_norm');
         renderCheckboxGroup('containerThicknessLabour', data.thickness_labour || [], 'service_name', 'cost', 'labour');
         renderCheckboxGroup('containerVeneerNormal',    data.veneer_normal_rates || [], 'item', 'rate', 'item_norm');
         renderCheckboxGroup('containerVeneerLabour',    data.veneer_labour || [], 'service_name', 'cost', 'labour');
-        renderCheckboxGroup('containerCncThickness',    data.cnc_thickness_rates || [], 'item', 'flat_rate', 'item_thick');
-        renderCheckboxGroup('containerCncNormal',       data.cnc_normal_rates || [], 'item', 'rate', 'item_norm');
+        renderUnifiedCncRates(data.cnc_thickness_rates || [], data.cnc_normal_rates || []);
 
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
+        badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Connected`;
 
         lucide.createIcons();
       } catch (err) {
         console.error("Options fetch failed:", err);
-        badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
-        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> Connection Failed`;
-        showErrorModal("Could not connect to Supabase to retrieve calculator options. Please verify your API key and connection.", "Connection Error");
+        badge.className = "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Offline`;
+        showErrorModal("Could not load options from database. Please check your Supabase API setup.", "Connection Error");
       }
+    }
+
+    function handleStepToggle() {
+      // Updates rate labels (e.g. Profile vs Flat) without changing user selections
+      updateCncThicknessRateLabels();
+      triggerCalculate();
+    }
+
+    function renderUnifiedCncRates(cncThicknessList, cncNormalList) {
+      const container = document.getElementById('containerCncRates');
+      if ((!cncThicknessList || cncThicknessList.length === 0) && (!cncNormalList || cncNormalList.length === 0)) {
+        container.innerHTML = `<div class="text-[11px] text-slate-400 py-1">No CNC rates configured</div>`;
+        return;
+      }
+
+      let html = '';
+
+      // 1. Thickness Profiles
+      (cncThicknessList || []).forEach(item => {
+        const itemId = `chk_thick_${encodeURIComponent(item.item).replace(/%/g, '_')}`;
+        html += `
+          <div class="flex items-center justify-between gap-2 p-2 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition text-xs bg-white">
+            <label for="${itemId}" class="flex items-center gap-2 truncate flex-1 min-w-0 cursor-pointer" title="${item.item} (${item.thickness_mm || 0}mm)">
+              <input type="checkbox" id="${itemId}" value="${item.item}" class="item_thick rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 flex-shrink-0" onchange="triggerCalculate()">
+              <div class="truncate">
+                <span class="font-medium text-slate-800 block truncate">${item.item}</span>
+                <span class="cnc-rate-display text-[10px] text-slate-500 font-mono" 
+                      data-flat="${item.flat_rate || 0}" 
+                      data-profile="${item.profile_rate || 0}">
+                  RM 0.00
+                </span>
+              </div>
+            </label>
+          </div>
+        `;
+      });
+
+      // 2. Normal Rate Add-ons inside CNC Rates (with Qty support)
+      (cncNormalList || []).forEach(item => {
+        const isQty = item.is_per_qty === 1;
+        const itemId = `chk_norm_${encodeURIComponent(item.item).replace(/%/g, '_')}`;
+
+        html += `
+          <div class="flex items-center justify-between gap-2 p-2 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition text-xs bg-white">
+            <label for="${itemId}" class="flex items-center gap-2 truncate min-w-0 cursor-pointer flex-1" title="${item.item}">
+              <input type="checkbox" id="${itemId}" value="${item.item}" class="item_norm rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 flex-shrink-0" 
+                     data-is-qty="${isQty ? '1' : '0'}" 
+                     onchange="toggleQtyInputState(this, '${item.item}')">
+              <div class="truncate">
+                <span class="font-medium text-slate-800 block truncate">${item.item}</span>
+                <span class="text-[10px] text-slate-500 font-mono">${fmtCurr(item.rate)} ${isQty ? '<span class="text-blue-600 font-bold">/ pc</span>' : ''}</span>
+              </div>
+            </label>
+            ${isQty ? `
+              <div class="flex items-center gap-1 pl-1 border-l border-slate-100 flex-shrink-0">
+                <span class="text-[10px] font-bold text-slate-400">Qty:</span>
+                <input type="number" min="1" value="1" 
+                       data-for-item="${item.item}" 
+                       disabled
+                       class="qty-input w-12 px-1 py-0.5 text-xs text-center border border-slate-300 rounded-md font-bold text-slate-700 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
+                       oninput="triggerCalculate()">
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      updateCncThicknessRateLabels();
+    }
+
+    /**
+     * Helper to enable/disable the Qty input when checkbox is toggled
+     */
+    function toggleQtyInputState(checkboxEl, itemName) {
+      const qtyInput = document.querySelector(`input.qty-input[data-for-item="${itemName}"]`);
+      if (qtyInput) {
+        qtyInput.disabled = !checkboxEl.checked;
+        if (checkboxEl.checked) {
+          qtyInput.focus();
+        }
+      }
+      triggerCalculate();
+    }
+
+    function updateCncThicknessRateLabels() {
+      const isThickness = document.getElementById('stepThickness').checked;
+      const isVeneer = document.getElementById('stepVeneer').checked;
+      const isCnc = document.getElementById('stepCnc').checked;
+
+      // Condition: ONLY CNC Router step selected
+      const isOnlyCnc = isCnc && !isThickness && !isVeneer;
+
+      document.querySelectorAll('.cnc-rate-display').forEach(el => {
+        const flatRate = parseFloat(el.getAttribute('data-flat')) || 0;
+        const profileRate = parseFloat(el.getAttribute('data-profile')) || 0;
+
+        if (isOnlyCnc) {
+          el.innerHTML = `<span class="text-slate-600">${fmtCurr(profileRate)}</span> <span class="text-slate-400 text-[9px]">(/m³)</span>`;
+        } else {
+          el.innerHTML = `<span class="text-blue-700 font-semibold">${fmtCurr(flatRate)}</span> <span class="text-slate-400 text-[9px]">(/m)</span>`;
+        }
+      });
+    }
+
+    /**
+     * Extracts unique configured thickness_mm values and builds <option> list
+     */
+    function populateThicknessPresetDropdown(thicknessList) {
+      const select = document.getElementById('selectConfiguredThickness');
+      const thicknessSet = new Set();
+
+      thicknessList.forEach(t => {
+        if (t.thickness_mm !== null && t.thickness_mm !== undefined && t.thickness_mm > 0) {
+          thicknessSet.add(Number(t.thickness_mm));
+        }
+      });
+
+      availableThicknessValues = Array.from(thicknessSet).sort((a, b) => a - b);
+
+      select.innerHTML = '<option value="">-- Choose Thickness (e.g. 34mm, 36mm) --</option>' +
+        availableThicknessValues.map(val => {
+          // Find items matching this thickness for labeling
+          const matchingItems = thicknessList.filter(t => Number(t.thickness_mm) === val).map(t => t.item).join(', ');
+          return `<option value="${val}">${val} mm</option>`;
+        }).join('');
+    }
+
+    /**
+     * When user picks a preset thickness:
+     * sets Height to 18 (default standard board) and Thickness to (val - 18)
+     */
+    function handleThicknessPresetChange(selectedVal) {
+      if (!selectedVal) return;
+      const target = parseFloat(selectedVal);
+      
+      // Split the total thickness equally in half
+      const halfValue = round2(target / 2);
+      document.getElementById('inputHeight').value = halfValue;
+      document.getElementById('inputThickness').value = halfValue;
+
+      // Update preview and trigger recalculation
+      const total = halfValue + halfValue;
+      const preview = document.getElementById('previewTotalThickness');
+      preview.innerText = `${total} mm`;
+      preview.className = "text-xs sm:text-sm font-bold text-blue-700";
+
+      triggerCalculate();
+    }
+
+    function syncManualThicknessChange() {
+      const h = parseFloat(document.getElementById('inputHeight').value) || 0;
+      const t = parseFloat(document.getElementById('inputThickness').value) || 0;
+      const total = round2(h + t);
+
+      const preview = document.getElementById('previewTotalThickness');
+      preview.innerText = `${total} mm`;
+      preview.className = total > 0 ? "text-xs sm:text-sm font-bold text-blue-700" : "text-xs sm:text-sm font-bold text-slate-400";
+
+      // If sum matches a preset in the dropdown, select it; otherwise clear dropdown selection
+      const select = document.getElementById('selectConfiguredThickness');
+      if (availableThicknessValues.includes(total)) {
+        select.value = total;
+      } else {
+        select.value = "";
+      }
+
+      triggerCalculate();
     }
 
     function renderCheckboxGroup(containerId, list, labelKey, rateKey, groupClass) {
@@ -447,15 +618,34 @@
         return;
       }
 
-      container.innerHTML = list.map(item => `
-        <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/30 cursor-pointer transition text-xs">
-          <input type="checkbox" value="${item[labelKey]}" class="${groupClass} rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5" onchange="triggerCalculate()">
-          <div class="truncate">
-            <span class="font-medium text-slate-800 block truncate">${item[labelKey]}</span>
-            <span class="text-[10px] text-slate-500">${fmtCurr(item[rateKey])}</span>
+      container.innerHTML = list.map(item => {
+        const isQty = item.is_per_qty === 1;
+        const itemId = `chk_${groupClass}_${encodeURIComponent(item[labelKey]).replace(/%/g, '_')}`;
+
+        return `
+          <div class="flex items-center justify-between gap-2 p-2 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50/30 transition text-xs bg-white">
+            <label for="${itemId}" class="flex items-center gap-2 truncate min-w-0 cursor-pointer flex-1" title="${item[labelKey]}">
+              <input type="checkbox" id="${itemId}" value="${item[labelKey]}" class="${groupClass} rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 flex-shrink-0" 
+                     data-is-qty="${isQty ? '1' : '0'}" 
+                     onchange="toggleQtyInputState(this, '${item[labelKey]}')">
+              <div class="truncate">
+                <span class="font-medium text-slate-800 block truncate">${item[labelKey]}</span>
+                <span class="text-[10px] text-slate-500 font-mono">${fmtCurr(item[rateKey])} ${isQty ? '<span class="text-blue-600 font-bold">/ pc</span>' : ''}</span>
+              </div>
+            </label>
+            ${isQty ? `
+              <div class="flex items-center gap-1 pl-1 border-l border-slate-100 flex-shrink-0">
+                <span class="text-[10px] font-bold text-slate-400">Qty:</span>
+                <input type="number" min="1" value="1" 
+                       data-for-item="${item[labelKey]}" 
+                       disabled
+                       class="qty-input w-12 px-1 py-0.5 text-xs text-center border border-slate-300 rounded-md font-bold text-slate-700 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed" 
+                       oninput="triggerCalculate()">
+              </div>
+            ` : ''}
           </div>
-        </label>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // ==========================================
@@ -463,7 +653,7 @@
     // ==========================================
     function triggerCalculate() {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(performCalculation, 300);
+      debounceTimer = setTimeout(performCalculation, 250);
     }
 
     async function performCalculation() {
@@ -473,32 +663,33 @@
       const thickness = parseFloat(document.getElementById('inputThickness').value) || 0;
       const thicknessWidth = parseFloat(document.getElementById('inputThicknessWidth').value) || 0;
 
-      // Update Total Thickness preview
-      const totalThickness = height + thickness;
-      document.getElementById('previewTotalThickness').innerText = `${totalThickness} mm`;
-      document.getElementById('previewTotalThickness').className = totalThickness > 0 ? "text-sm font-bold text-emerald-700" : "text-sm font-bold text-slate-400";
-
-      // If dimensions are missing, reset display and stop
       if (length <= 0 || width <= 0) {
         clearResults();
         return;
       }
 
-      // Gather Steps
       const steps = [];
       if (document.getElementById('stepThickness').checked) steps.push('thickness');
       if (document.getElementById('stepVeneer').checked) steps.push('veneer');
       if (document.getElementById('stepCnc').checked) steps.push('cnc');
 
-      // If no steps selected, clear results
       if (steps.length === 0) {
         clearResults();
         return;
       }
 
-      // Gather Multi-Selected Arrays
       const labourItems = Array.from(document.querySelectorAll('input.labour:checked')).map(el => el.value);
-      const normalRateItems = Array.from(document.querySelectorAll('input.item_norm:checked')).map(el => el.value);
+      // Collect checked normal rate items with their quantities
+      const normalRateItems = Array.from(document.querySelectorAll('input.item_norm:checked')).map(el => {
+        const itemName = el.value;
+        const isQty = el.getAttribute('data-is-qty') === '1';
+        let qty = 1;
+        if (isQty) {
+          const qtyInput = document.querySelector(`input.qty-input[data-for-item="${itemName}"]`);
+          qty = parseFloat(qtyInput?.value) || 1;
+        }
+        return { item: itemName, qty: qty };
+      });
       const thicknessRateItems = Array.from(document.querySelectorAll('input.item_thick:checked')).map(el => el.value);
 
       const payload = {
@@ -529,15 +720,14 @@
           const err = await response.json().catch(() => ({ message: response.statusText }));
           const cleanMessage = err.message || "Calculation failed";
           
-          // Show error in modal if it's new
           if (lastErrorDisplayed !== cleanMessage) {
-            showErrorModal(cleanMessage, "Calculation Exception");
+            showErrorModal(cleanMessage, "Thickness / Rate Notice");
           }
           clearResults();
           return;
         }
 
-        lastErrorDisplayed = null; // Clear error tracker on success
+        lastErrorDisplayed = null;
         const res = await response.json();
         updateUI(res);
 
@@ -588,7 +778,6 @@
       document.getElementById('cardTotalStepsCost').innerText = fmtCurr(totalSteps);
       document.getElementById('cardTotalLabourCost').innerText = fmtCurr(totalLabour);
 
-      // Render Active Applied Rates list
       renderAppliedRatesLog(r);
     }
 
@@ -598,15 +787,15 @@
 
       (rates.normal_rates || []).forEach(n => {
         items.push(`
-          <li class="py-2.5 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2 truncate">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-200">
+          <li class="py-2 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-slate-100 text-slate-700 border border-slate-200">
                 ${n.cost_type}
               </span>
-              <span class="text-slate-800 font-medium truncate">${n.item}</span>
+              <span class="text-slate-800 font-medium truncate text-xs">${n.item}</span>
             </div>
-            <span class="font-bold text-slate-900 whitespace-nowrap text-xs sm:text-sm">
-              ${fmtCurr(n.rate)} <span class="text-slate-400 font-normal text-xs">/ ${n.basis}</span>
+            <span class="font-bold text-slate-900 whitespace-nowrap text-xs">
+              ${fmtCurr(n.rate)} <span class="text-slate-400 font-normal text-[10px]">/ ${n.basis}</span>
             </span>
           </li>
         `);
@@ -614,15 +803,15 @@
 
       (rates.thickness_rates || []).forEach(t => {
         items.push(`
-          <li class="py-2.5 flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2 truncate">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-indigo-50 text-indigo-700 border border-indigo-200">
+          <li class="py-2 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-blue-50 text-blue-700 border border-blue-200">
                 Profile
               </span>
-              <span class="text-slate-800 font-medium truncate">${t.item} <span class="text-slate-500 font-normal text-xs">(${t.thickness_mm || 'vol'}mm)</span></span>
+              <span class="text-slate-800 font-medium truncate text-xs">${t.item} <span class="text-slate-400 font-normal text-[10px]">(${t.thickness_mm || 'vol'}mm)</span></span>
             </div>
-            <span class="font-bold text-slate-900 whitespace-nowrap text-xs sm:text-sm">
-              ${fmtCurr(t.rate)} <span class="text-slate-400 font-normal text-xs">/ ${t.basis}</span>
+            <span class="font-bold text-slate-900 whitespace-nowrap text-xs">
+              ${fmtCurr(t.rate)} <span class="text-slate-400 font-normal text-[10px]">/ ${t.basis}</span>
             </span>
           </li>
         `);
@@ -630,22 +819,22 @@
 
       (rates.labour_cost || []).forEach(l => {
         items.push(`
-          <li class="py-2.5 flex items-center justify-between gap-3 bg-emerald-50/40 px-2 rounded-lg my-1">
-            <div class="flex items-center gap-2 truncate">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">
+          <li class="py-2 flex items-center justify-between gap-2 bg-blue-50/40 px-2 rounded-lg my-1">
+            <div class="flex items-center gap-1.5 truncate">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wide uppercase bg-blue-100 text-blue-800 border border-blue-200">
                 Labour
               </span>
-              <span class="text-emerald-950 font-semibold truncate">${l.service_name}</span>
+              <span class="text-blue-950 font-semibold truncate text-xs">${l.service_name}</span>
             </div>
-            <span class="font-bold text-emerald-700 whitespace-nowrap text-xs sm:text-sm">
-              ${fmtCurr(l.total_cost)} <span class="text-emerald-600/70 font-normal text-[11px]">(${fmtCurr(l.unit_cost)} × perim)</span>
+            <span class="font-bold text-blue-700 whitespace-nowrap text-xs">
+              ${fmtCurr(l.total_cost)} <span class="text-blue-600/70 font-normal text-[10px]">(${fmtCurr(l.unit_cost)} × m)</span>
             </span>
           </li>
         `);
       });
 
       if (items.length === 0) {
-        list.innerHTML = `<li class="py-4 text-slate-400 text-center italic">No rates currently selected</li>`;
+        list.innerHTML = `<li class="py-3 text-slate-400 text-center italic text-xs">No rates currently selected</li>`;
       } else {
         list.innerHTML = items.join('');
       }
@@ -673,17 +862,18 @@
       document.getElementById('costCncLabour').innerText = 'RM 0.00';
       document.getElementById('costCncTotal').innerText = 'RM 0.00';
 
-      document.getElementById('appliedRatesList').innerHTML = `<li class="py-2 text-slate-400 text-center">No rates currently applied</li>`;
+      document.getElementById('appliedRatesList').innerHTML = `<li class="py-3 text-slate-400 text-center italic text-xs">No rates currently selected</li>`;
     }
 
     function resetCalculator() {
+      document.getElementById('selectConfiguredThickness').value = '';
       document.getElementById('inputLength').value = '';
       document.getElementById('inputWidth').value = '';
       document.getElementById('inputHeight').value = '';
       document.getElementById('inputThickness').value = '';
       document.getElementById('inputThicknessWidth').value = '';
       document.getElementById('previewTotalThickness').innerText = '0 mm';
-      document.getElementById('previewTotalThickness').className = 'text-sm font-bold text-slate-400';
+      document.getElementById('previewTotalThickness').className = 'text-xs sm:text-sm font-bold text-slate-400';
 
       document.getElementById('stepThickness').checked = false;
       document.getElementById('stepVeneer').checked = false;
